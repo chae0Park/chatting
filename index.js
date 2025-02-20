@@ -2,7 +2,6 @@ const { createServer } = require('http')
 const app = require('./app');
 const { Server } =  require("socket.io")
 require ('dotenv').config();
-require('./utils/io')(io);
 
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
@@ -10,8 +9,9 @@ const io = new Server(httpServer, {
         origin: 'http://localhost:3000'
     }
 })
+require('./utils/io')(io);
 
 //turn on the server using listen()
 httpServer.listen(process.env.PORT, ()=>{
-    console.log('serber listening on port', process.env.PORT)
+    console.log('server listening on port', process.env.PORT)
 })
