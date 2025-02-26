@@ -12,12 +12,6 @@ const userSchema = new mongoose.Schema({
         required: [true, 'User must type email'],
         unique: true,
     },
-    socketId: [ //user 한명이 여러개의 채팅탭을 오픈할 수 있도록
-        {
-            type: String,
-            required: [true, 'User must  have a socket ID'],
-        }
-    ],
 
     currentPassword: {
         type: String,

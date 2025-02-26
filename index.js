@@ -7,8 +7,10 @@ const httpServer = createServer(app);
 const io = new Server(httpServer, {
     cors:{
         origin: 'http://localhost:3000'
-    }
-})
+    },
+});
+
+//기존코드
 require('./utils/io')(io);
 
 //turn on the server using listen()

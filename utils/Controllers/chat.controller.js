@@ -2,25 +2,6 @@ const Room = require('../../Models/room');
 const Chat = require('../../Models/chat');
 const User = require('../../Models/user');
 const chatController = {};
-//controller for http
-
-chatController.fetchRoomDataOfUser = async (req, res) => {
-  try{
-    const userId = req.userId;
-    const user = await User.findById(userId);
-
-    const roomIds = user.rooms.flat().map(room => room.toString());
-    const rooms = await Room.find({ _id: { $in: roomIds } });
-   //todo: room과 room에 해당하는 chat 객체들을 찾아 함께 response로 보내야함 
-
-   
-    return res.status(202).json(rooms);
-
-  }catch (e) {
-    console.error('Failed to fetch room data of a logged in user', e);
-    return res.status(500).json({ message: 'Failed to fetch chat messages' });
-  }
-};
 
 //a last message per room
 chatController.getChatMessagesByRoom = async (req, res) => {
@@ -48,7 +29,9 @@ chatController.getChatMessagesByRoom = async (req, res) => {
           const lastMessageIdx = room.chats.slice(-1)[0];
 
           if(lastMessageIdx) {
-            const lastMessage = await Chat.findById(lastMessageIdx);
+            const lastMessage = await Chat.findById(lastMessageIdx)
+              .populate('sender')  // Populate sender's full details
+              .populate('recipient');  // Populate recipient's full details;
             return lastMessage;
           }
           return null; // if no chats in the room, return null
@@ -59,8 +42,9 @@ chatController.getChatMessagesByRoom = async (req, res) => {
       // const chatIds = chatInRooms.flat().map((id) => id.toString());
 
       // 방에 포함된 모든 채팅 메시지를 반환
-      // console.log("rooms:", rooms, "lastMessages:",lastMessages);
+      //console.log("rooms:", rooms, "lastMessages:",lastMessages);
       return res.json({rooms, lastMessages}); // return res.json(rooms); 
+      
     } catch (e) {
       console.error('Failed to fetch chat messages', e);
       return res.status(500).json({ message: 'Failed to fetch chat messages' });
@@ -79,12 +63,10 @@ chatController.getChatMessagesByRoom = async (req, res) => {
           return res.status(404).json({message: 'id parameter from client is invalid'});
         }
         
-        //todo : room._id 대신 user.rooms 에 있는 id(ObjectId이기 때문에 toString() 사용해야 함)를 이용해서 room 가져오기를 추가한다. 
-
         const room = await Room.findById(roomId); //클릭한 room 1개를 의미 
 
         const leftMember = room.leftTime.find(member => member.userId.toString() === userId);
-        const chatsQuery = {};
+        const chatsQuery = {}; //leftMember가 있으면 나간 시간 이후의 메세지 부터 열람 가능하도록 
 
         //leftMember가 존재하고 timestamp 값이 있으면
         if (leftMember && leftMember.timestamp) {
@@ -104,16 +86,8 @@ chatController.getChatMessagesByRoom = async (req, res) => {
         const chats = await Chat.find({
           '_id': { $in: chatIdsList },
           ...chatsQuery,  // leftMember가 있으면 timestamp 필터링이 적용됨
-        });
-
-
-        //room - chatsid 로 chat 가져옴- chatsQuery로 필터링함을 포함하지 않음 
-        // const chatIdsList = room.chats.flat().map((id) => id.toString());
-        // const chats = await Chat.find({
-        //   '_id': { $in: chatIdsList }
-        // });
-
-        
+        }).populate('sender', 'name profileImage online')  // Populate sender's full details
+          .populate('recipient', 'name profileImage online');
 
         //user isOnline 가져오기 
         // console.log("chatIdsList",chatIdsList);
@@ -131,7 +105,7 @@ chatController.getChatMessagesByRoom = async (req, res) => {
           };
         });
 
-        //console.log('대화 불러오기 conversations', conversations);
+        console.log('대화 불러오기 conversations', conversations);
         return res.status(202).json(conversations);
     }catch(error){
         return res.status(404).json({message: error.message || 'Something went wrong while fetching the clicked conversation'});
@@ -139,36 +113,74 @@ chatController.getChatMessagesByRoom = async (req, res) => {
     }
   };
 
+chatController.findChatRoom = async (recipientIds, sender) => {
+  console.log('findChatRoom() is called!', recipientIds, sender.id);
 
-//기존 코드
-chatController.saveChat = async({ message, recipient, sender }, user) => {  
-  if (!user) {
-      throw new Error('User not found');
+  try{
+    const membersIds = [sender.id, ...recipientIds];
+    console.log('findChatRoom() - membersIds:', membersIds);
+    const existingRoom = await Room.findOne(
+      {members: { $all: membersIds }, $expr: { $eq: [{ $size: "$members" }, membersIds.length] }}
+    );
+
+    if(existingRoom){
+      console.log('findChatRoom() - existingRoom:', existingRoom);
+    }
+    return existingRoom;
+  }catch(e){
+    throw new Error('Failed to find chat room');
   }
-  try{         
+}
+
+
+chatController.saveChatRoom = async (recipient, sender) => {
+ 
+  try{
 
     const recipients = Array.isArray(recipient) ? recipient : [recipient];
+
     console.log('recipients:', recipients);
 
-    // 1. 기존의 방을 찾을 때는, `members` 배열에 포함된 ID들이 모두 있는 `room`을 찾는다.
+    // sender-recipiend 를 모두 포함한 room 이 있는지 확인
     let membersIds = [sender.id, ...recipients.map(r => r._id)];
     let room = await Room.findOne({
-    members: { $all: membersIds }, // 모든 membersId가 포함된 room 찾기
-    $expr: { $eq: [{ $size: "$members" }, membersIds.length] } // members의 크기가 정확히 일치하는지 확인
+      members: { $all: membersIds }, // 모든 membersId가 포함된 room 찾기
+      $expr: { $eq: [{ $size: "$members" }, membersIds.length] } // members의 크기가 정확히 일치하는지 확인
     });
 
-    if(room && room.members.length === recipients.length + 1){
-      room.leftMembers = [];
+    if(room){
+      console.log('saveChatRoom() - existingroom:', room);
     }
 
-      if(!room){
-          const recipientNames = recipients.map(r => r.name).join(', ');
-          room = new Room({
-              name: `${sender.name} - ${recipientNames}`,
-              members: [sender.id, ...recipients.map(r => r._id)], // room -type: mongoose.Schema.ObjectId,
-          });
-          await room.save();
-      }
+
+    //room이 없는경우엔 하나 만들어줌 
+    if (!room) {
+      room = new Room(
+        {
+          name: `Room-${Date.now()}`,
+          members: [sender.id, ...recipients.map(r => r._id)], // room -type: mongoose.Schema.ObjectId,
+        }
+      );
+      await room.save();
+    }
+    return room;
+  } catch (e) {
+    throw new Error('Failed to save chat room');
+  }
+}
+
+
+//기존 코드
+chatController.saveChat = async(message, recipient, sender, room) => {
+  try{  
+
+    console.log('saveChat() param으로 받은 room은?', room);
+    if(room.leftMembers.length > 0){
+      room.leftMembers =[];
+    }
+    console.log('saveChat() leftroom 초기화', room);
+    
+      let recipients = Array.isArray(recipient) ? recipient : [recipient];
 
       //room id를 각 유저 객체에 추가
       sender = await User.findById(sender.id);
@@ -186,21 +198,12 @@ chatController.saveChat = async({ message, recipient, sender }, user) => {
       }
 
 
+
       //create a new chat message object
       const newMessage = new Chat({
           chat: message,   
-          sender: { 
-              _id: sender.id, 
-              name: sender.name,
-              profileImage: sender.profileImage,
-              room: room._id,
-          },
-          recipient: recipients.map(r => ({ 
-              _id: r._id,
-              name: r.name,
-              profileImage: r.profileImage, 
-              room: room._id,
-          })), 
+          sender: sender,
+          recipient: recipients, 
           isRead: false,  // 기본적으로 읽지 않은 상태         
           room: room._id,
        });           
@@ -222,7 +225,6 @@ chatController.saveChat = async({ message, recipient, sender }, user) => {
 
 
   chatController.deleteSelectedChatRoom = async (req, res) => {
-    //console.log('deleteSelectedChatRoom() is called!');
 
     try{
       const userId = req.userId;

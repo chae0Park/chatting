@@ -3,7 +3,7 @@ const router = express.Router();
 const verifyAccessToken = require('../Middleware/authMiddleware');
 const chatController = require('../utils/Controllers/chat.controller');
 
-router.get('/roomDataOfUser', verifyAccessToken, chatController.fetchRoomDataOfUser);
+//router.get('/roomDataOfUser', verifyAccessToken, chatController.fetchRoomDataOfUser);
 
 router.get('/room/chats', verifyAccessToken, chatController.getChatMessagesByRoom);
 

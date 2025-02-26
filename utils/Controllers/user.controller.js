@@ -33,7 +33,7 @@ const userController = {};
                 newPassword : null,
                 phone,
                 profileImage,
-                online: online || false,
+                online: false,
             });
 
             await newUser.save();
@@ -118,8 +118,6 @@ const userController = {};
     };
 
 
-    //logout하면 user 객체 찾아와서  online : false로 만드는코드 
-
 
     // auth.controller 끝----------------------
 
@@ -136,6 +134,7 @@ const userController = {};
 
         const responseData = {
             id: user._id,
+            email: user.email,
             name: user.name,
             password: user.currentPassword,
             profileImage: user.profileImage,
@@ -200,12 +199,11 @@ const userController = {};
         }
     };
 
-//유저 정보 가져오기 유저찾기 친구추가하기
+//유저 검색  - 유저 / chats 
     userController.findUsers = async(req, res) => {
         try{
             const loggedInUserId = req.userId;
             const { query } = req.query;
-            //console.log('유저 찾기 쿼리: ', query);
             
             if(!query){
                 return res.status(400).json({ message: 'Please provide a search term'});
@@ -222,17 +220,14 @@ const userController = {};
             }
 
             
-            // console.log('검색어로 찾은 유저(들): ', users);
             if(users.length === 0){
                 return res.status(400).json({message: 'No users found'});
             }
 
             //유저 사이에 존재하는 채팅창 찾기----------------------------------------------
 
-            //1. users의 아이디 추출 
             const userIds = [loggedInUserId, ...users.map((user) => user._id)]; // ['로그인한 유저 아이디','유저아이디1', '유저아이디2','유저아이디3'...]
 
-            //2.로그인한 유저아이디랑 쿼리로 검색한 유저들의 아이디가 memebers로 들어간 rooms 들 가지고옴 
             let rooms = await Room.find({ members: {$all: userIds} })
             rooms = rooms.filter(room => !room.leftMembers.some(member => member.toString() === loggedInUserId));
 
@@ -247,7 +242,9 @@ const userController = {};
 
                         if (lastMessageIdx) {
                             // Fetch the last message from the Chat collection
-                            const lastMessage = await Chat.findById(lastMessageIdx);
+                            const lastMessage = await Chat.findById(lastMessageIdx)
+                            .populate('sender', 'name profileImage')
+                            .populate('recipient', 'name profileImage');
                             return lastMessage; // Return the last message object
                         }
 

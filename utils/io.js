@@ -1,45 +1,32 @@
 const userWsController = require('../utils/Controllers/user.websocket.controller');
 const chatController = require('../utils/Controllers/chat.controller');
 const users = {};
-const User = require('../Models/user');
+const clients = {};
+const rooms = {};
 
 //io의 이벤트 리스너들 기재
 module.exports = function (io) {
 
-    io.on("connection", async (socket) => {
-        console.log("User is connected to the websocket", socket.id); //socket.id is created automatically
+    io.on("connection", (socket) => {
+        console.log("User is connected to the websocket"); // 서버와 클라이언트가 socket에 연결되면 자동으로 socket 이라는 객체를 생성한다 
 
-        //todo : if I succeed in fetching chat history, delete this event and also the one in Home.jsx too
-        socket.on("registerSocket", async (userId) => {
-            console.log('registerSocket is called', userId);
-            try {
+
+        socket.on("login", async (userId) => {
+            if (userId) {
+                clients[userId] = socket;  // clients 객체에 userId와 socket 매핑
+                console.log(`User with ID ${userId} logged in : ${clients[userId].id}`);
+
                 const user = await userWsController.findUserById(userId);
-                if (user) {
-
-                    if (!user.socketId) {
-                        user.socketId = []; // If it's not an array, initialize it
-                    }
-
-                    if (!user.socketId.includes(socket.id)) {
-                        user.socketId.push(socket.id); // Add socket id to the user's socketId array
-                        await user.save();
-                        console.log('Socket registered for user:', userId);
-                    } else {
-                        console.log('Socket id already registered');
-                    }
-
-                } else {
-                    console.log('User not found:', userId);
-                    socket.emit('error', 'User not found');
-                }
-            } catch (e) {
-                console.error('Error registering socket:', e);
+                user.online = true;
+                user.save();
+            } else {
+                console.log("Invalid login credentials");
             }
         });
+//User with ID 67b2ec36420e9f59a8b1fd45 logged in
 
         //join chat 은 기존 멤버 2명 보다 더 많은 인원이 들어왔을 때, 혹은 그룹채팅시 사용하도록 한다.
         socket.on('joinChat', async (userName, cb) => {
-            //call saveUser function from userController to save user info
             try {
                 const user = await userWsController.findUserByName(userName);
                 if (user) {
@@ -61,53 +48,88 @@ module.exports = function (io) {
             }
         });
 
-        
+
         socket.on("sendMessage", async ({ message, recipient, sender }, cb) => {
-            console.log('받는사람', recipient);
+            console.log('프론트로 부터 받은 메세지:', message);
 
             if (!recipient) {
                 return cb({ ok: false, error: 'Recipient is not existing' });
-            }else{
-                console.log('recipient is existing : ', recipient);
+            } else {
+                console.log('recipient is existing ');
             }
-
-
             try {
-                // 채팅 메시지 저장
-                const user = await userWsController.findUserById(sender.id);
-                console.log('user-보내는 사람은?:', user);
+                let recipientIds = Array.isArray(recipient) ? recipient.map(r => r._id) : [recipient._id];
+                if(recipientIds.length === 0){
+                    recipientIds = [sender._id];
+                }
+                
+                // 채팅방이 이미 있는지 확인
+                const existingRoom = await chatController.findChatRoom(recipientIds, sender);
 
-                const newMessage = await chatController.saveChat({ message, recipient, sender }, user);
+                let room;
+                if (existingRoom) {
+                    room = existingRoom;
+                } else {
+                    room = await chatController.saveChatRoom(recipient, sender);
+                }
+
+                if (!room) {
+                    return cb({ ok: false, error: 'Failed to find or save chat room' });
+                } else {
+                    console.log('찾거나 새로 생성한 room의 아이디 :', room.id);
+                }
+
+                // 채팅룸을 가져오거나 만들고 룸안에 유저들의 소켓을 저장한다 
+                rooms[room._id] = [];
+                [sender.id, ...recipientIds].forEach(id => {
+                    const userSocket = clients[id]; // userId로 해당 소켓을 찾음
+                    if (userSocket) {
+                        rooms[room._id].push(userSocket); // 소켓을 해당 방 배열에 추가
+                    }
+                });
+
+                //chat 객체를 저장한다 
+                const newMessage = await chatController.saveChat(message, recipient, sender, room);
+                (newMessage) ? console.log('newMessage:', newMessage) : console.log('newMessage is null');
 
                 //메세지 전송 - 기존코드
-                io.emit('message', newMessage);
+                rooms[room._id].forEach(socket => {
+                    console.log('메시지 전송 중:', newMessage);  // 전송되는 메시지 확인
+                    console.log('socket 상태:', socket.connected);  // 소켓 연결 상태 확인
+                    socket.emit('message', newMessage);
+                });
 
-
-                cb({ ok: true }); // 클라이언트에게 성공 응답
+                cb({ ok: true });
             } catch (error) {
-                cb({ ok: false, error: error.message }); // 실패 시 에러 응답
+                cb({ ok: false, error: error.message });
             }
+        } //call back function ended
+        );
+
+
+        socket.on('message', (message) => {
+            console.log('받은 메시지:', message);  // 수신된 메시지 확인
         });
 
 
-
-        
 
         socket.on("disconnect", async () => {
-            const user = users[socket.id];
-            if (user) {
-                user.socketId = user.socketId.filter(id => id !== socket.id);
-                await user.save();
-                delete users[socket.id];
-                const exitMessage = {
-                    chat: `${user.name} has left`,
-                    user: { id: null, name: 'system' },
-                };
-                io.emit("message", exitMessage);
+            // 사용자가 연결을 끊었을 때 소켓에서 삭제
+            for (let userId in clients) {
+                if (clients[userId] === socket) {
+                    const user = await userWsController.findUserById(userId);
+                    user.online = false;
+                    user.save();
+
+                    delete clients[userId];
+                    console.log(`User with ID ${userId} disconnected`);
+                    break;
+                }
             }
-            console.log('user is disconnected');
-            //system 메세지로 ${user.name} left 표시해주기 
+            console.log('클라이언트 연결 끊어짐:', socket.id);
         });
+
+
     });
 };
 

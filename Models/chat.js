@@ -1,47 +1,37 @@
 const mongoose = require('mongoose');
 
 const chatSchema = new mongoose.Schema(
-    {
-        chat: String,
+  {
+    chat: String,
 
-        sender: { //new mongoose.Schema' for a single object***
-          type: new mongoose.Schema({ 
-            name: { type: String, required: true },
-            profileImage: { type: String },
-            _id: { type: mongoose.Schema.ObjectId, ref: "User", required: true },
-            online: {type: Boolean, default: false},
-          }),
-          required: true
-        },
-
-    recipient:{
-      type:
-        [{
-          name: { type: String, required: true },
-          profileImage: { type: String },
-          _id: { type: mongoose.Schema.ObjectId, ref: "User", required: true },
-          online: { type: Boolean, default: false },
-        }]
-      ,
+    sender: {
+      type: mongoose.Schema.ObjectId, // Only store the ObjectId reference to User
+      ref: "User",  // Reference to the User model
       required: true
     },
 
-        createdAt: {
-          type: Date,
-          default: Date.now, 
-        },
-        
-        isRead: { 
-          type: Boolean, 
-          default: false 
-        }, 
-
-      room: {
-          type: mongoose.Schema.ObjectId,
-          ref: "Room",
-      },
+    recipient: {
+      type: [mongoose.Schema.ObjectId], // Array of ObjectIds for multiple recipients
+      ref: "User",  // Reference to the User model
+      required: true
     },
-        {timestamp: true}
-    );
 
-    module.exports = mongoose.model("Chat", chatSchema);
+    createdAt: {
+      type: Date,
+      default: Date.now,
+    },
+
+    isRead: {
+      type: Boolean,
+      default: false
+    },
+
+    room: {
+      type: mongoose.Schema.ObjectId,
+      ref: "Room",
+    },
+  },
+  { timestamp: true }
+);
+
+module.exports = mongoose.model("Chat", chatSchema);

@@ -550,6 +550,16 @@ const user = await User.findById(userId).populate('rooms');  |
 console.log(user.rooms);                                     |
 --------------------------------------------------------------
 
+전체 객체를 reference로 사용하는게 아니라 객체 중에서 필요한 필드만 가져와서 사용하고 싶을 때
+const chats = await Chat.find({
+  '_id': { $in: chatIdsList },
+  ...chatsQuery,  // leftMember가 있으면 timestamp 필터링이 적용됨
+})
+.populate('sender', 'name profileImage')  // Populate only selected fields of sender
+.populate('recipient', 'name profileImage'); // Populate only selected fields of recipient
+
+
+
 11.
 [문제]
 2개의 array list 값 중 일치하는 값이 있는지 확인하기 
@@ -1090,3 +1100,36 @@ handleSendMessage 함수 가장 아래부분에 recipient 와 sender를 정하�
             기존 대화가 존재하지 않고, 채팅방에 여러명의 상대를 선택하지도 않았다. 하지만 1명의 상대를 선택했다
     
     라는 의미로 정리 해볼 수 있다
+
+[문제]
+깃허브 커밋 관련 
+진짜 조심해야 되는거: 
+서버/uploads 파일안에 저장해두던 profileImage를 삭제했음. 
+-> 깃허브에서만 삭제되는거 아니고 프로젝트에서 아예 삭제됨 
+조심하거라..
+
+
+
+[문제]
+채팅방을 찾아야 하는데 a와 b유저 둘만 있는 채팅방을 찾아야함 (두 유저와 다른 유저들이 함께 포함된 방은 의미x)
+-> 2가지 조건을 이용해서 원하는 데이터를 찾아와야함.
+
+[해결]
+let room = await Room.findOne({
+    members: { $all: membersIds }, // 모든 membersId가 포함된 room 찾기
+    $expr: { $eq: [{ $size: "$members" }, membersIds.length] } // members의 크기가 정확히 일치하는지 확인
+    });
+
+
+[주의]
+리스트.map( 객체 => )컴포넌트 렌더링 중 useState()를 이용해 상태업데이트 할 수 없다 
+[해결]
+let 변수로 선언
+
+[문제]
+3가지 값 true,false,undefind를 해결하는 삼항 연산자 
+[해결]
+{currentAddState !== undefined ? ( currentAddState ? "delete" : "add") : null}
+clickedUser.length === undefind : null
+clickedUser.length > 0 && clickedUser.map( c => c === f._id ) : true -> delete
+clickedUser.length > 0 && clickedUser.map( c => c !== f._id ) : false -> add
