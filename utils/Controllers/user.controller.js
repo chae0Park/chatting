@@ -156,12 +156,8 @@ const userController = {};
        }
     }
 
-    
-
-
     //edit user info - name, profileImage, password
     userController.editUser = async(req, res) => {
-        //console.log('edit controller fn called!')
         try{
             const userId = req.userId; 
             const user = await User.findById(userId);
