@@ -1,0 +1,73 @@
+.input-field{
+    margin: 0 auto;
+    padding: 0 2.5rem 0 3rem;
+}
+.input-area {
+    background-color: #C0B5B5;
+    height: 8vh;
+    display: flex;
+    align-items: center;
+    padding: 0 2.5rem 0 3rem;
+    position: relative; 
+  }
+  .plus-button{
+    background-color: rgb(142, 119, 153);
+    width: 35px;
+    height: 35px;
+    color:white;
+    font-weight: bold;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    border-radius: 100%;
+    position: absolute;
+    top: 5px;
+    left: 4px;
+  }
+  
+  .input-container {
+    display: flex;
+    align-items: center;
+    width: 100%;
+  }
+  
+  .MuiInput-root{
+    height: 100%;
+    width: 100%;
+    border:none;
+    border-color: white;
+  }
+  
+  
+  .inputfield-input{
+    border: 1px solid rgb(181, 174, 184);
+    width: 65%;  /* 고정된 너비 */
+    height: 6vh;
+    padding-left: 5rem;
+    border-radius: 30px;
+    position: absolute; /* 부모 요소에서 위치 고정 */
+    right: 0.3%; 
+  }
+  input:focus{
+    outline:none;
+    
+  }
+
+  .send-button{
+    width: 68px;
+    height: 39px;
+    background-color: #afa6eb;
+    border: none;
+    border-radius: 20px;
+    position: absolute;
+    right: 0.7%;
+    top: 15%;
+  }
+  .send-button:hover {
+    cursor:pointer;
+  }
+  .send-button:active {
+    background-color: yellow;
+  }
+  

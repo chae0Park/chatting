@@ -1,0 +1,182 @@
+.chat{
+    margin: 0 auto;
+    display: flex;
+    padding: 0 2.5rem 0 3rem;
+}
+
+
+/* container */
+.chatting-container{
+    width: 65vw;
+}
+
+.chatroom-header{
+    height: 8vh; 
+    background-color: #c18cd4;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding:0 4rem 0 2.5rem;
+    color: white;
+}
+.userfriend-img-container{
+    display: flex;
+    align-items: center;
+}
+
+.chat-userfriend-img{
+    width: 35px;
+    height: 35px;
+    background-color: rgb(178, 124, 207);
+    margin-right:0.7rem;
+    border-radius: 100%;
+    border: 2px solid white;
+}
+
+
+.count-friends{
+    margin-left: 1.8rem;
+}
+
+.chatting-screen{
+    /* border: 2px solid pink; */
+    height: 81.8vh;
+    background-color: #f1e9f3;
+}
+.chatting-contents-container{
+    border: 2px solid white;
+    max-height: 82vh;
+    padding: 0.5rem 10px 0.5rem 0.5rem;
+    overflow-y: auto; 
+    scroll-behavior: smooth; /* Smooth scrolling effect */
+}
+
+/* setting scroll bar css */
+  
+  /* 스크롤바의 폭 너비 */
+  .chatting-contents-container::-webkit-scrollbar {
+      width: 10px;  
+  }
+  
+  .chatting-contents-container::-webkit-scrollbar-thumb {
+      background: rgba(210, 113, 223, 0.667); /* 스크롤바 색상 */
+      border-radius: 10px; /* 스크롤바 둥근 테두리 */
+  }
+  
+  .chatting-contents-container::-webkit-scrollbar-track {
+      background: rgba(224, 192, 199, 0.951);  /*스크롤바 뒷 배경 색상*/
+  }
+/*  */
+
+
+.system-msg{
+    background-color: #d7d0dc;
+    text-align: center;
+}
+.chatting-card{
+    display: flex;
+    padding: 1rem;
+    align-items: center;
+}
+.chatting-card-profile-img{
+    width: 40px;
+    height: 40px;
+    background-color: #9a62bd;
+    border-radius: 100%;
+    border: 2px solid white;
+    margin-right: 0.5rem;
+}
+.chatting-card-name{
+    font-size: 14px;
+    padding-left: 0.8rem;
+}
+.chatting-card-msg{
+    font-size: 13px;
+    background-color: white;
+    height: 3vh;
+    padding: 0.5rem 1rem 0.5rem 1rem;
+    border-radius: 30px;
+
+}
+.chatting-card-date{
+    font-size: 11px;
+    padding-top: 0.3rem;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.chatting-card-me{
+    display: flex;
+    padding: 1rem;
+    align-items: center;
+    /* border: 2px solid white; */
+    justify-content: flex-end;
+}
+.chatting-card-my-msg{
+    font-size: 13px;
+    background-color: white;
+    height: 3vh;
+    padding: 0.5rem 1rem 0.5rem 1rem;
+    border-radius: 30px;
+}
+.chatting-card-my-date{
+    font-size: 11px;
+    padding-top: 0.3rem;
+}
+
+
+
+/* ------------------------------------------------------profileContainer */
+.chat-user-profile-container{
+    width: 25vw;
+}
+.chat-user-profile-container-header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 8vh;
+    background-color: #d0a7e4;
+    padding: 0 1.5rem 0 2rem;
+}
+.chat-profile{
+    display: flex;
+    align-items: center;
+}
+.chat-user-img{
+    width: 45px;
+    height: 45px;
+    background-color: rgb(172, 124, 207);
+    margin-right:1.5rem;
+    border-radius: 100%;
+    border: 2px solid white;
+}
+
+.chatroom-plus-logo{
+    width: 25px;
+    height: 25px;
+    /* background-color: rgb(207, 124, 207); */
+    text-align: center;
+    font-size: 19px;
+    color: white;
+}
+.chatroom-plus-logo:hover{
+    cursor: pointer;
+    color:  rgba(119, 54, 157, 0.545) ;
+}
+.chat-user-chatroom-list{
+    height: 87vh;
+    background-color: #dbd0dc;
+    padding-top: 1.2rem;
+}
+.chat-searchbar{
+    height: 5.5vh;
+    width: 19vw;
+    background-color: white;
+    margin: 0 auto;
+    border-radius: 30px;
+    margin-bottom: 1.2rem;
+    display: block;
+    border: 1px solid #d2bdd5;
+    padding-left: 1.5rem;
+    outline: none;
+}

@@ -1,0 +1,114 @@
+.chat-room-preview-card{
+    width: 22vw;
+    height: 12vh;
+    background-color: #e0daf4;
+    margin: 0 auto 0.5rem;
+    border-radius: 8px;
+    align-content: center;
+    position: relative;
+}
+.chat-room-preview-card:hover{
+    background-color: #8a8191;
+    border: 2px solid white;
+}
+.chat-room-preview-card-added{
+    width: 22vw;
+    height: 12vh;
+    background-color: #c9b6d8;
+    margin: 0 auto 0.5rem;
+    border-radius: 10px;
+    align-content: center;
+    position: relative;
+}
+.chat-room-preview-card-added:hover{
+    background-color: #8a8191;
+    border: 2px solid white;
+}
+.chat-room-preview-layout1{
+    display: flex;
+    font-size: 13px;
+    align-items: center;
+    padding-left: 1rem;
+}
+.chat-room-preview-profile-img{
+    width: 45px;
+    height: 45px;
+    border-radius: 100%;
+    border: 2px solid white;
+    background-color: rgb(179, 124, 207);
+    margin-right: 1rem;
+}
+
+.chat-room-preview-contents{
+    height: 8vh;
+    width: 67%;
+    align-items: center;
+}
+.chat-room-preview-contents-friend{
+    height: 8vh;
+    width: 67%;
+    align-items: center;
+    /* border: 1px solid white; */
+    display: flex;
+    justify-content: space-between;
+}
+.preview-contents-name{
+    font-weight: bold;
+}
+.online-state{
+    color: rgb(33, 168, 33);
+    font-size: 19px;
+}
+
+.addBtn:hover{
+    cursor: pointer;
+    color: white;
+}
+.added{
+    color: rgb(128,128,128,0.6);
+}
+.add-to-chat:hover{
+    cursor: pointer;
+    color: white;
+}
+.chat-room-preview-more{
+    display: flex;
+    height: 8vh;
+    align-items: center;
+    font-size: 11px;
+    
+}
+.friend-added-button{
+    position: absolute;
+    right: 1.8rem;
+}
+.friend-add-button{
+    position: absolute;
+    right: 1.8rem;
+}
+.friend-add-button:hover{
+    cursor: pointer;
+    color: white;   
+}
+.preview-contents-date{
+    position: absolute;
+    right: 1.5rem;
+    display: flex;
+    align-items: center;
+}
+
+.x-box{
+    margin-left: 1rem;
+    /* border: 1px solid white; */
+    width: 1.5rem;
+    height: 1.5rem;
+    text-align: center;
+    font-size: 15px;
+}
+
+.x-box:hover{
+    cursor: pointer;
+    background-color: #8a8191;
+    color: white;
+    
+}

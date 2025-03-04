@@ -1,0 +1,120 @@
+.chatroom-header{
+    height: 8vh; 
+    background-color: rgb(158, 140, 212);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding:0.5rem 4rem 0.5rem 2.5rem;
+    color: white;
+    border-radius: 2px;
+}
+.userfriend-img-container{
+    display: flex;
+    align-items: center;
+    width: 40%;
+}
+
+.chat-userfriend-img{
+    width: 35px;
+    height: 35px;
+    background-color: rgb(178, 124, 207);
+    margin-right: 0.7rem;
+    border-radius: 100%;
+    border: 2px solid white;
+    display: flex; /*그룹챗의 경우 친구들의 프로필사진을 가로로 배치*/
+}
+
+.online-state-text{
+    color: rgb(219, 242, 219);
+    font-size: 12px;
+    
+}
+
+.multiuser-img-rsc{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 100%;
+    display: inline-block; 
+    
+}
+
+/*스크롤 설정*/
+.chatting-contents-container{
+    background-color: #ede9f3;
+
+    border: 2px solid white;
+    height: 78vh;
+    padding: 0.5rem 10px 0.5rem 0.5rem;
+    overflow-y: auto; 
+    scroll-behavior: smooth; /* Smooth scrolling effect */
+}
+
+/* setting scroll bar css */
+  
+  /* 스크롤바의 폭 너비 */
+  .chatting-contents-container::-webkit-scrollbar {
+      width: 10px;  
+  }
+  
+  .chatting-contents-container::-webkit-scrollbar-thumb {
+      background: rgba(146, 113, 223, 0.667); /* 스크롤바 색상 */
+      border-radius: 10px; /* 스크롤바 둥근 테두리 */
+  }
+  
+  .chatting-contents-container::-webkit-scrollbar-track {
+      background: rgba(224, 192, 199, 0.951);  /*스크롤바 뒷 배경 색상*/
+  }
+
+/* my chatting card */
+.chatting-card-me{
+    display: flex;
+    padding: 1rem;
+    align-items: center;
+    /* border: 2px solid white; */
+    justify-content: flex-end;
+}
+.chatting-card-my-msg{
+    font-size: 13px;
+    background-color: white;
+    height: 3vh;
+    padding: 0.5rem 1rem 0.5rem 1rem;
+    border-radius: 30px;
+}
+.chatting-card-my-date{
+    font-size: 11px;
+    padding-top: 0.3rem;
+}
+  /* partner */
+.chatting-card{
+    display: flex;
+    padding: 1rem;
+    align-items: center;
+}
+.chatting-card-profile-img{
+    width: 40px;
+    height: 40px;
+    background-color: #9a62bd;
+    border-radius: 100%;
+    border: 2px solid white;
+    margin-right: 0.5rem;
+}
+.chatting-card-name{
+    font-size: 14px;
+    padding-left: 0.8rem;
+}
+.chatting-card-msg{
+    font-size: 13px;
+    background-color: white;
+    height: 3vh;
+    padding: 0.5rem 1rem 0.5rem 1rem;
+    border-radius: 30px;
+
+}
+.chatting-card-date{
+    font-size: 11px;
+    padding-top: 0.3rem;
+    display: flex;
+    justify-content: flex-end;
+}
+

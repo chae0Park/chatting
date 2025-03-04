@@ -1,0 +1,74 @@
+.login{
+    padding-top: 90px;
+    display: flex;
+    justify-content: center;
+}
+
+.login-container{
+    box-shadow: 0 0 14px hsla(0, 0%, 29%, 0.584);
+    border-radius: 2%;
+    width: 35vw;
+    text-align: center;
+    padding: 65px 0 20px 0;
+}
+
+.login-form > h1{
+    color: rgb(237, 215, 248);
+    text-shadow: rgba(119, 54, 157, 0.545) 3px 2px 2px;
+    font-size: 37px;
+}
+.login-form > h2{
+    color: rgb(71, 64, 74);
+}
+
+.login-inputs{
+    padding-top: 3%;
+    display: block;
+    justify-items: center;
+}
+
+.login-inputs > input{
+    display: block;
+    border-radius: 34px;
+    border: 1px solid rgb(109, 109, 109);
+    height: 5vh;
+    width: 20vw;
+    margin-bottom: 5%;
+    padding-left: 30px;
+    font-size: 16px;
+}
+
+.login-btn{
+    border-radius: 34px;
+    background-color: rgba(134, 62, 131, 0.714);
+    width: 22vw;
+    height: 5vh;
+    border: none;
+    font-size: 20px;
+    margin: 20px 0 20px 0;
+    color: rgb(237, 215, 248);
+}
+
+.login-btn:hover{
+    box-shadow: 0 0 14px hsla(0, 0%, 29%, 0.5);
+    color: white;
+}
+
+.login-image{
+    width: 35vw;
+    height: 80vh;
+    box-shadow: 0 0 15px hsla(0, 0%, 29%, 0.584);
+    margin-left: 70px;
+    border-radius: 10px;
+}
+
+.login-smiling-girl{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.login-signup-link:hover{
+    color:  rgba(118, 62, 134, 0.714);
+}
