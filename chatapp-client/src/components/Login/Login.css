@@ -69,6 +69,10 @@
     border-radius: 10px;
 }
 
-.login-signup-link:hover{
+.login-signup-link{
     color:  rgba(118, 62, 134, 0.714);
+    &:hover{
+        cursor: pointer;
+        text-shadow: 0 0 15px rgba(180, 129, 195, 0.714);
+    }
 }

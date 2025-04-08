@@ -47,7 +47,7 @@ const Chat = () => {
 
             if (existingChat && existingChat.length > 0) {
                 setMessageList(existingChat);
-				//새로운 유저가 들어올 경우 대비하여 가장 마지막 챗에서 추출출
+				//새로운 유저가 들어올 경우 대비하여 가장 마지막 챗에서 추출
                 const messageListLast = existingChat.slice(-1)[0];
                 const membersObj = [...messageListLast.recipient, messageListLast.sender];
                 const partner = membersObj.filter(member => member._id !== user.id); 
