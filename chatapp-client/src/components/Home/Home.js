@@ -37,7 +37,7 @@ const Home = () => {
                     </Link>
                 </p>
                 <p>
-                    <Link to='/setting'>
+                    <Link to={'/setting'}>
                         setting
                     </Link>
                 </p>

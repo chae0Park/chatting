@@ -5,7 +5,7 @@ import socket from '../../server.js'
 import { useFetchLoginUser, queryClient } from '../../hooks/util.js';
 import { fetchClickedUserData, fetchmultiUserData } from '../../api/userService.js'; 
 import ProfileContainer from '../profile container/ProfileContainer.jsx';
-import { fetchChatsByRoom, fetchChat } from '../../api/chatService.js';
+import { fetchChatsByRoom, fetchChat, fetchConversationByUsers } from '../../api/chatService.js'; //
 import ChattingContainer from '../chatting container/ChattingContainer.jsx';
 import { useQuery, useMutation } from '@tanstack/react-query';
 
@@ -13,32 +13,62 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 const Chat = () => {
     const [message, setMessage] = useState('');
     const [messageList, setMessageList] = useState([]); // Initialize messageList as an empty array
-    const [clickedUser, setClickedUser] = useState('');
-    const [clickedUserList, setClickedUserList] = useState([]);  // 여러 유저를 관리할 상태
-    const [isUserClicked, setIsUserClicked] = useState(false); // 클릭된 상태를 추적 - 	handleUserClick() - onAddMoreUser() 문제해결
-    const [chatPartner, setChatPartner] = useState([]);
-    
+    const [clickedUser, setClickedUser] = useState(''); // id
+    const [clickedUserList, setClickedUserList] = useState([]);  // 여러 유저 ids
+    const [chatPartner, setChatPartner] = useState([]); //유저 객체들
+    const [isUserClicked, setIsUserClicked] = useState(false); // 클릭된 상태를 추적
     const { data: user } = useFetchLoginUser();
-    
+
     const {data : multiChatPartner } = useQuery({
-        queryKey: ['multiChatPartner', clickedUserList],
+        queryKey: ['multiChatPartner', {id: clickedUserList}],
         queryFn: () => fetchmultiUserData(clickedUserList),
-        enabled: clickedUserList !== undefined && clickedUserList && clickedUserList.length > 0, 
+        enabled: (clickedUserList !== undefined) && clickedUserList && (clickedUserList.length > 0), 
         //enabled: clickedUserList.length > 0,  // 클릭된 유저가 있을 때만 활성화
     });
-    
+
+
     const { data: clickedUserData } = useQuery({ 
 		queryKey: ['clickedUserData', {id: clickedUser}],
 		queryFn: () => fetchClickedUserData(clickedUser), 
         enabled: clickedUser !== '',
 	});
-     
+
 
     const {data: roomsAndChats} = useQuery({
         queryKey: ['roomsAndChats'],
         queryFn: fetchChatsByRoom,
         initialData: [] //이니셜데이터 설정을 해두지 않으면 오류남
     });
+
+
+    const { data: conversationByUsers } = useQuery({ 
+		queryKey: ['conversationByUsers', {id: clickedUserList}],//
+		queryFn: () => fetchConversationByUsers(clickedUserList), 
+        enabled: clickedUserList && clickedUserList.length > 0 
+	});  
+
+    useEffect(() => {
+        if(conversationByUsers && conversationByUsers.length > 0){
+            setMessageList(conversationByUsers);
+            const partnerIdArray = conversationByUsers[0].members.filter(member => member !== user.id); // partner 의 아이디
+            setClickedUserList(partnerIdArray) // partner 의 아이디들로 객체들을 가져옴 
+            console.log('✅파트너는?', partnerIdArray);
+        }else{ // 둘 사이의 채팅이 존재하지 않으면 messageList 는 null
+            setMessageList(null);
+        }
+        
+    },[conversationByUsers, user]) // 기존 메세지와 유저 객체 까지는 설정
+
+    useEffect(() => {
+        if(clickedUserData){
+            console.log('🔎clickedUserData',clickedUserData);
+            setChatPartner([clickedUserData]); 
+        }else if(multiChatPartner){
+            setChatPartner(multiChatPartner.users);
+        }
+    }, [clickedUserData , multiChatPartner]);
+
+
 
     const handleChatClick = async (id) => {
         console.log('handleChatClick 호출됨');
@@ -66,8 +96,8 @@ const Chat = () => {
         try {
             setIsUserClicked(true); // 첫번째 대화 상대가 정해짐 렌더링 된 후 : isUserClicked = true            
             setClickedUser(id);
-            setClickedUserList([id]);          
-            setMessageList(null);
+            setClickedUserList([id]); 
+            setMessageList(null); 
             setIsUserClicked(false);
         } catch (error) {
             console.error('Error fetching user data:', error);

@@ -6,18 +6,13 @@ const chatController = {};
 //a last message per room
 chatController.getChatMessagesByRoom = async (req, res) => {
     try {
-    //fetch user Id from the request 
     const userId = req.userId;
-
     if(!userId){
         return res.status(404).json({message: 'getChatMessagesByRoom - no user ID is fetched.'})
     }
 
-    //로그인한 user의 id로 채팅방을 찾음 
     let rooms = await Room.find({members : userId});
-
     rooms = rooms.filter(room => !room.leftMembers.some(member => member.toString() === userId));
-    //console.log('getChatMessagesByRoom함수에서 찾은 - rooms:', rooms);
     
       if (!rooms) {
         return res.status(404).json({ message: 'getChatMessagesByRoom - Rooms not found' });
@@ -37,12 +32,6 @@ chatController.getChatMessagesByRoom = async (req, res) => {
           return null; // if no chats in the room, return null
         })
       );
-      //room 객체 안의 chat 아이디들이 잘 나오는지 확인
-      // const chatInRooms = rooms.map((room) => room.chats); //이건 잘 나옴
-      // const chatIds = chatInRooms.flat().map((id) => id.toString());
-
-      // 방에 포함된 모든 채팅 메시지를 반환
-      //console.log("rooms:", rooms, "lastMessages:",lastMessages);
       return res.json({rooms, lastMessages}); // return res.json(rooms); 
       
     } catch (e) {
@@ -52,66 +41,115 @@ chatController.getChatMessagesByRoom = async (req, res) => {
   };
   
   //fetch chats by a certain room id
-  chatController.fetchConversation = async (req, res) => {
-    try{
-        const userId = req.userId;
-        const roomId = req.params.id;
-        
-        if(!userId){
-          return res.status(401).json({message: 'Unauthorised while fetching the selected chat conversation'});
-        }else if(!roomId){
-          return res.status(404).json({message: 'id parameter from client is invalid'});
-        }
-        
-        const room = await Room.findById(roomId); //클릭한 room 1개를 의미 
+chatController.fetchConversation = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const roomId = req.params.id;
 
-        const leftMember = room.leftTime.find(member => member.userId.toString() === userId);
-        const chatsQuery = {}; //leftMember가 있으면 나간 시간 이후의 메세지 부터 열람 가능하도록 
-
-        //leftMember가 존재하고 timestamp 값이 있으면
-        if (leftMember && leftMember.timestamp) {
-          chatsQuery.createdAt = { $gte: leftMember.timestamp }; //퇴장한 멤버 이후의 채팅만 조회하도록 createdAt 필터를 추가합니다.
-        }
-
-        /*여기서 leftMember의 값: 
-        leftMembers: [
-          {
-              userId: userId,  // 유저의 ID
-              timestamp: Date,  // 나간 시간
-          }
-        ]*/
-
-        // 기존 메시지들을 가져오기 + leftMember가 있으면 timestamp 필터링이 적용됨
-        const chatIdsList = room.chats.flat().map((id) => id.toString()); //방에 있는 모든 채팅 ID를 문자열로 변환하여 chatIdsList 배열에 저장합니다.
-        const chats = await Chat.find({
-          '_id': { $in: chatIdsList },
-          ...chatsQuery,  // leftMember가 있으면 timestamp 필터링이 적용됨
-        }).populate('sender', 'name profileImage online')  // Populate sender's full details
-          .populate('recipient', 'name profileImage online');
-
-        //user isOnline 가져오기 
-        // console.log("chatIdsList",chatIdsList);
-        // console.log("chats",chats);
-
-        const conversations = chats.map((chat) =>  {
-          return {
-            chatId: chat._id,
-            chat: chat.chat,
-            isRead: chat.isRead,
-            createdAt: chat.createdAt,
-            recipient: chat.recipient,
-            sender: chat.sender,
-            members: room.members
-          };
-        });
-
-        console.log('대화 불러오기 conversations', conversations);
-        return res.status(202).json(conversations);
-    }catch(error){
-        return res.status(404).json({message: error.message || 'Something went wrong while fetching the clicked conversation'});
-        
+    if (!userId) {
+      return res.status(401).json({ message: 'Unauthorised while fetching the selected chat conversation' });
+    } else if (!roomId) {
+      return res.status(404).json({ message: 'id parameter from client is invalid' });
     }
-  };
+
+    const room = await Room.findById(roomId); //클릭한 room 1개를 의미 
+
+    const leftMember = room.leftTime.find(member => member.userId.toString() === userId);
+    const chatsQuery = {}; //leftMember가 있으면 나간 시간 이후의 메세지 부터 열람 가능하도록 
+
+    //leftMember가 존재하고 timestamp 값이 있으면
+    if (leftMember && leftMember.timestamp) {
+      chatsQuery.createdAt = { $gte: leftMember.timestamp }; //퇴장한 멤버 이후의 채팅만 조회하도록 createdAt 필터를 추가합니다.
+    }
+
+    // 기존 메시지들을 가져오기 + leftMember가 있으면 timestamp 필터링이 적용됨
+    const chatIdsList = room.chats.flat().map((id) => id.toString()); //방에 있는 모든 채팅 ID를 문자열로 변환하여 chatIdsList 배열에 저장합니다.
+    const chats = await Chat.find({
+      '_id': { $in: chatIdsList },
+      ...chatsQuery,  // leftMember가 있으면 timestamp 필터링이 적용됨
+    }).populate('sender', 'name profileImage online')  // Populate sender's full details
+      .populate('recipient', 'name profileImage online');
+
+    //user isOnline 가져오기 
+    // console.log("chatIdsList",chatIdsList);
+    // console.log("chats",chats);
+
+    const conversations = chats.map((chat) => {
+      return {
+        chatId: chat._id,
+        chat: chat.chat,
+        isRead: chat.isRead,
+        createdAt: chat.createdAt,
+        recipient: chat.recipient,
+        sender: chat.sender,
+        members: room.members
+      };
+    });
+
+    console.log('대화 불러오기 conversations', conversations);
+    return res.status(202).json(conversations);
+  } catch (error) {
+    return res.status(404).json({ message: error.message || 'Something went wrong while fetching the clicked conversation' });
+  }
+};
+
+
+//! [leftMember 적용]
+chatController.fetchConversationByUsers =  async (req, res) => {
+  console.log('fetchConversationByUsers() is called!');
+  try{
+    const loginUserId = req.userId; //로그인한 유저의 id
+    const { userIds } = req.query; //클릭한 유저의 id
+    const membersIds = [loginUserId, ...userIds];
+    if(membersIds.length < 2){
+      console.log('대화상대가 없습니다.');
+    }
+
+    const existingRoom = await Room.findOne(
+      {members: { $all: membersIds }, $expr: { $eq: [{ $size: "$members" }, membersIds.length] }}
+    );
+
+    console.log('existingRoom:', existingRoom);
+
+    if(!existingRoom){
+      return;
+    }
+
+    const leftMember = existingRoom.leftTime.find(member => member.userId.toString() === loginUserId);
+    const chatsQuery = {}; //leftMember가 있으면 나간 시간 이후의 메세지 부터 열람 가능하도록 
+
+    //leftMember가 존재하고 timestamp 값이 있으면
+    if (leftMember && leftMember.timestamp) {
+      chatsQuery.createdAt = { $gte: leftMember.timestamp }; //퇴장한 멤버 이후의 채팅만 조회하도록 createdAt 필터를 추가합니다.
+    }
+    
+    const chatIdsList = existingRoom.chats.flat().map((id) => id.toString()); //방에 있는 모든 채팅 ID를 문자열로 변환하여 chatIdsList 배열에 저장합니다.
+    const chats = await Chat.find({
+      '_id': { $in: chatIdsList },
+      ...chatsQuery, 
+    }).populate('sender', 'name profileImage online')  // Populate sender's full details
+      .populate('recipient', 'name profileImage online');
+
+    const conversations = chats.map((chat) => {
+      return {
+      chatId: chat._id,
+      chat: chat.chat,
+      isRead: chat.isRead,
+      createdAt: chat.createdAt,
+      recipient: chat.recipient,
+      sender: chat.sender,
+      members: existingRoom.members
+      };
+    });
+
+    console.log('대화 불러오기 conversations', conversations);
+    return res.status(202).json(conversations);
+
+  }catch(error){
+    return res.status(404).json({ message: error.message || 'Something went wrong while fetching the clicked conversation' });
+
+  }
+}
 
 chatController.findChatRoom = async (recipientIds, sender) => {
   console.log('findChatRoom() is called!', recipientIds, sender.id);

@@ -13,6 +13,7 @@ const ChattingContainer = ({ clickedUserData, multiChatPartner, messageList, use
         }
     },[messageList])
 
+
     return (
         <>
             {/* header - 기존 채팅의 유무에 따라 */}

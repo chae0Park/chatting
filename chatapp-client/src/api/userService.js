@@ -25,6 +25,7 @@ export const login = async(fd) => {
     }
 };
 
+//todo: refreshToken 뜯어고치기
 export const refreshAccessToken = async (refreshToken) => {
     try{
         const response = await axios.post('http://localhost:5001/api/refresh-token', {refreshToken});
@@ -105,7 +106,6 @@ export const edit = async (formData) => {
 
     //그룹챗 - handleAddMoreUser()가 호출되면 호출할 서비스를 만든다
     export const fetchmultiUserData = async (ids) => {
-        // console.log('group chat을 위해 선택된 유저 아이디들', ids);
         try{
             const response = await api.get('http://localhost:5001/api/fetch-multiple-users', {
                 params: {
