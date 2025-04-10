@@ -34,7 +34,6 @@ const Chat = () => {
         enabled: clickedUser !== '' && !!clickedUser,
 	});
     useEffect(() => {
-        if(clickedUserData){ console.log('clickedUserData:', clickedUserData)}
         if(clickedUserData){
             setChatPartner([clickedUserData]);
         }
@@ -62,10 +61,13 @@ const Chat = () => {
         if (existingChat && existingChat.length === 0) {
             setMessageList([]);  
             setChatPartner([]);  
-          } else if(existingChat && existingChat.length > 0){
-            console.log('existingChat의 값: ', existingChat);
+          } else if(existingChat === null){
+            console.log('📝existingChat의 값: ', existingChat);
+            setMessageList([]);  
+            setChatPartner([]);  
+          }else if(existingChat && existingChat.length > 0){
+            console.log('📝existingChat의 값: ', existingChat);
             setMessageList(existingChat);
-            // setIsUserClicked(true); // 첫번째 대화 상대가 정해짐 렌더링 된 후 : isUserClicked = true            
             const messageListLast = existingChat.slice(-1)[0];
             const membersObj = [...messageListLast.recipient, messageListLast.sender];
             const partner = membersObj.filter(member => member._id !== user.id); 
@@ -83,7 +85,6 @@ const Chat = () => {
     };
     
     const handleUserClick = async(id) => {
-        console.log('handleUserClick 호출됨, id 값:',id);
         try {
             setRoomId();
             setIsUserClicked(true);  //add delet        
@@ -95,6 +96,14 @@ const Chat = () => {
             setIsUserClicked(false);
         }
     };
+
+    useEffect(() => {
+        if(clickedUserList){
+            console.log('👥clickedUserList: ',clickedUserList);
+        }if(multiChatPartner){
+            console.log('✅multiChatPartner: ',multiChatPartner);
+        }
+    }, [clickedUserList, multiChatPartner])
 
     //clickedUserList 유저만 세팅함 
     const handleAddMoreUser = (userId) => {

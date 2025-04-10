@@ -42,20 +42,50 @@ chatController.getChatMessagesByRoom = async (req, res) => {
   
   //fetch chats by a certain room id
 chatController.fetchConversation = async (req, res) => {
-  try {
-    const userId = req.userId;
-    const roomId = req.params.id;
+  const userId = req.userId;
+	const {userIds} = req.query;
+	const {roomId} = req.query;
 
-    if (!userId) {
+  console.log('userIds', userIds);
+	
+	if (!userId) {
       return res.status(401).json({ message: 'Unauthorised while fetching the selected chat conversation' });
-    } else if (!roomId) {
-      return res.status(404).json({ message: 'id parameter from client is invalid' });
+  } else if (!userIds && !roomId) {
+      return res.status(404).json({ message: '유저 아이디나 룸아이디 중에 하나는 있어야 됌.' });
+  }
+
+  try {
+    
+    //유저 아이디로 찾은 채팅 룸 
+    let membersIds;
+    let room;
+    if(userIds){
+      membersIds = [userId, ...userIds];
+      console.log('membersIds', membersIds);
+      room = await Room.findOne(
+      {members: { $all: membersIds }, $expr: { $eq: [{ $size: "$members" }, membersIds.length] }}
+      );
+
+      if(!room){
+        return res.status(200).json(null);
+      }
+
+      console.log('멤버들의 id로 찾은 room', room);
+
     }
 
-    const room = await Room.findById(roomId); //클릭한 room 1개를 의미 
+    if(roomId){
+      room = await Room.findById(roomId); //클릭한 room 1개를 의미 
+      console.log('룸 id로 찾은 room', room);
+  
+      if(!room){
+        return res.status(200).json(null);
+      }
+  
+    }
 
     const leftMember = room.leftTime.find(member => member.userId.toString() === userId);
-    const chatsQuery = {}; //leftMember가 있으면 나간 시간 이후의 메세지 부터 열람 가능하도록 
+    const chatsQuery = {}; 
 
     //leftMember가 존재하고 timestamp 값이 있으면
     if (leftMember && leftMember.timestamp) {
@@ -69,10 +99,6 @@ chatController.fetchConversation = async (req, res) => {
       ...chatsQuery,  // leftMember가 있으면 timestamp 필터링이 적용됨
     }).populate('sender', 'name profileImage online')  // Populate sender's full details
       .populate('recipient', 'name profileImage online');
-
-    //user isOnline 가져오기 
-    // console.log("chatIdsList",chatIdsList);
-    // console.log("chats",chats);
 
     const conversations = chats.map((chat) => {
       return {
@@ -93,63 +119,6 @@ chatController.fetchConversation = async (req, res) => {
   }
 };
 
-
-//! [leftMember 적용]
-chatController.fetchConversationByUsers =  async (req, res) => {
-  console.log('fetchConversationByUsers() is called!');
-  try{
-    const loginUserId = req.userId; //로그인한 유저의 id
-    const { userIds } = req.query; //클릭한 유저의 id
-    const membersIds = [loginUserId, ...userIds];
-    if(membersIds.length < 2){
-      console.log('대화상대가 없습니다.');
-    }
-
-    const existingRoom = await Room.findOne(
-      {members: { $all: membersIds }, $expr: { $eq: [{ $size: "$members" }, membersIds.length] }}
-    );
-
-    console.log('existingRoom:', existingRoom);
-
-    if(!existingRoom){
-      return;
-    }
-
-    const leftMember = existingRoom.leftTime.find(member => member.userId.toString() === loginUserId);
-    const chatsQuery = {}; //leftMember가 있으면 나간 시간 이후의 메세지 부터 열람 가능하도록 
-
-    //leftMember가 존재하고 timestamp 값이 있으면
-    if (leftMember && leftMember.timestamp) {
-      chatsQuery.createdAt = { $gte: leftMember.timestamp }; //퇴장한 멤버 이후의 채팅만 조회하도록 createdAt 필터를 추가합니다.
-    }
-    
-    const chatIdsList = existingRoom.chats.flat().map((id) => id.toString()); //방에 있는 모든 채팅 ID를 문자열로 변환하여 chatIdsList 배열에 저장합니다.
-    const chats = await Chat.find({
-      '_id': { $in: chatIdsList },
-      ...chatsQuery, 
-    }).populate('sender', 'name profileImage online')  // Populate sender's full details
-      .populate('recipient', 'name profileImage online');
-
-    const conversations = chats.map((chat) => {
-      return {
-      chatId: chat._id,
-      chat: chat.chat,
-      isRead: chat.isRead,
-      createdAt: chat.createdAt,
-      recipient: chat.recipient,
-      sender: chat.sender,
-      members: existingRoom.members
-      };
-    });
-
-    console.log('대화 불러오기 conversations', conversations);
-    return res.status(202).json(conversations);
-
-  }catch(error){
-    return res.status(404).json({ message: error.message || 'Something went wrong while fetching the clicked conversation' });
-
-  }
-}
 
 chatController.findChatRoom = async (recipientIds, sender) => {
   console.log('findChatRoom() is called!', recipientIds, sender.id);

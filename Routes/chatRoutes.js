@@ -5,9 +5,7 @@ const chatController = require('../utils/Controllers/chat.controller');
 
 router.get('/room/chats', verifyAccessToken, chatController.getChatMessagesByRoom);
 
-router.get('/chat/:id', verifyAccessToken, chatController.fetchConversation);
-
-router.get('/conversation/users',verifyAccessToken, chatController.fetchConversationByUsers);
+router.get('/chat', verifyAccessToken, chatController.fetchConversation);
 
 router.put('/room/:id', verifyAccessToken, chatController.deleteSelectedChatRoom);
 

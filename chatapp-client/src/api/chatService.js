@@ -41,7 +41,7 @@ export const fetchChatsByRoom = async () => {
 
   //클릭한 chat의 room id를 통해 chat들을 불러온다 
   export const fetchChat = async (roomId, userIds) => {
-    console.log('클릭한 대화를 가지고 오기 위해 필요한 roomId는?', roomId, 'userIds는?', userIds);
+    // console.log('클릭한 대화를 가지고 오기 위해 필요한 roomId는?', roomId, 'userIds는?', userIds);
     try{ 
         const response = await api.get('http://localhost:5001/api/chat', {
             headers: {

@@ -57,7 +57,6 @@ const userController = {};
             if(!user){
                 return res.status(400).json({ message: 'Invalid user credentials' });
             }
-            //await bcrypt.compare() ***
             const isMatch = await bcrypt.compare(currentPassword, user.currentPassword);
 
             if(!isMatch){
@@ -65,18 +64,22 @@ const userController = {};
                 return 
             }
 
-            const accessToken  = jwt.sign({ userId: user._id }, jwtSecretKey,{ expiresIn: '1h' });
-            const refreshToken = jwt.sign({ userId: user._id }, jwtRefreshSecretKey, { expiresIn: '7d' });
+            const accessToken  = jwt.sign({ userId: user._id }, jwtSecretKey,{ expiresIn: '1h' }); 
+            const refreshToken = jwt.sign({ userId: user._id }, jwtRefreshSecretKey, { expiresIn: '7d' }); 
+            console.log('refreshToken의 값값',refreshToken);
 
-            user.refreshToken = refreshToken;
             user.online = true;
             await user.save();
 
+            // 리프레시 토큰을 HTTP-only 쿠키로 설정하여 저장장
+            res.cookie('refreshToken', refreshToken, {
+                httpOnly: true,
+                maxAge: 7 * 24 * 60 * 60 * 1000,
+            });
 
             res.status(200).json({
                 message: 'Login successful',
                 accessToken,
-                refreshToken,
                 user: {
                     id: user._id,
                     name: user.name,
@@ -139,7 +142,6 @@ const userController = {};
             password: user.currentPassword,
             profileImage: user.profileImage,
             online: user.online,
-            refreshToken: user.refreshToken,
             rooms: user.rooms,
             friends,
         };
@@ -262,9 +264,9 @@ const userController = {};
 
 
     userController.fetchOneUserData = async(req, res) => {
-        // console.log('one user fetch controller called');
+        console.log('one user fetch controller called');
         try{
-            const user = req.userId;
+            // const user = req.userId;
             const friendId = req.params.id
 
             if(!friendId){
@@ -275,8 +277,8 @@ const userController = {};
             if(!foundUser){
                 return res.status(400).json({message:'db prob mate when finding the clicked user.'});
             }
-            // console.log('foundUser: ', foundUser);
-            res.status(200).json(foundUser); //클릭한 유저의 정보만 찾아서 감 
+            console.log('foundUser: ', foundUser);
+            res.status(200).json(foundUser); //클릭한 유저의 객체를 돌려줌
 
         }catch(e){
             res.status(500).json({message: e.message});

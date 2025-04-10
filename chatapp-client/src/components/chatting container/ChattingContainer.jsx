@@ -16,12 +16,13 @@ const ChattingContainer = ({ clickedUserData, multiChatPartner, messageList, use
 
 
     useEffect(() => {
-        if(chatPartner){
-            console.log("ChattingContainer 에서 찍어본 chatPartner?", chatPartner);
-        }else if(multiChatPartner){
-            console.log("ChattingContainer 에서 찍어본 multiChatPartner?", multiChatPartner);
+        if(multiChatPartner){
+            console.log("ChattingContainer 에서 찍어본 multiChatPartner?", multiChatPartner.users);
         }
-    }, [chatPartner,multiChatPartner])
+        if(messageList){
+            console.log("ChattingContainer 에서 찍어본 messageList?", messageList);
+        }
+    }, [multiChatPartner, messageList])
 
 
     return (
@@ -72,7 +73,7 @@ const ChattingContainer = ({ clickedUserData, multiChatPartner, messageList, use
 
 
                 {/* multiChatPartner만 존재하고, 아직 챗은 안보냈을 때 */}
-                {(multiChatPartner && multiChatPartner.users.length > 0) && !messageList && (
+                {(multiChatPartner && multiChatPartner.users.length > 0) && !messageList.length > 0 && (
                     <div className='userfriend-img-container'>
                         {multiChatPartner.users.map((chatPartner) => (
                             chatPartner.profileImage ? (
