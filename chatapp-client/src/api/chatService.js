@@ -8,7 +8,7 @@ export const fetchRoomDataOfUser = async () => {
     const response = await api.get('http://localhost:5001/api/roomDataOfUser', {
     headers: {
       Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-    }
+    },
     });
     return response.data;
   } catch (error) {
@@ -39,36 +39,20 @@ export const fetchChatsByRoom = async () => {
   };
 
 
-  export const fetchConversationByUsers = async (clickedUserList) => {  
-    console.log('fetchConversationByUsers 호출됨, clickedUserId:', clickedUserList);
-    try {
-      const response = await api.get('http://localhost:5001/api/conversation/users', {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-        },
-        params: {
-          userIds: clickedUserList, 
-        },
-      });
-      console.log('fetchConversationByUsers 응답:', response.data);
-      return response.data;  
-    } catch (error) {
-      console.error('Error fetching chat messages:', error);
-      throw error;
-    }
-  }
-
-
   //클릭한 chat의 room id를 통해 chat들을 불러온다 
-  export const fetchChat = async (id) => {
-    // console.log('클릭한 대화를 가지고 오기 위해 필요한 id는?', id);
+  export const fetchChat = async (roomId, userIds) => {
+    console.log('클릭한 대화를 가지고 오기 위해 필요한 roomId는?', roomId, 'userIds는?', userIds);
     try{ 
-        const response = await api.get(`http://localhost:5001/api/chat/${id}`, {
+        const response = await api.get('http://localhost:5001/api/chat', {
             headers: {
                 Authorization : `Bearer ${localStorage.getItem('accessToken')}`,
             },
+            params : {
+              userIds: userIds,
+              roomId: roomId,
+          }
         });
-        // console.log('fetchChat으로 가져오는 데이터:' , response.data);
+        console.log('fetchChat으로 가져오는 데이터:' , response.data);
         return response.data;
     }catch(error){
         throw new Error('Error occurred', error);

@@ -5,7 +5,7 @@ import socket from '../../server.js'
 import { useFetchLoginUser, queryClient } from '../../hooks/util.js';
 import { fetchClickedUserData, fetchmultiUserData } from '../../api/userService.js'; 
 import ProfileContainer from '../profile container/ProfileContainer.jsx';
-import { fetchChatsByRoom, fetchChat, fetchConversationByUsers } from '../../api/chatService.js'; //
+import { fetchChatsByRoom, fetchChat } from '../../api/chatService.js'; 
 import ChattingContainer from '../chatting container/ChattingContainer.jsx';
 import { useQuery, useMutation } from '@tanstack/react-query';
 
@@ -13,6 +13,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 const Chat = () => {
     const [message, setMessage] = useState('');
     const [messageList, setMessageList] = useState([]); // Initialize messageList as an empty array
+    const [roomId, setRoomId] = useState();
     const [clickedUser, setClickedUser] = useState(''); // id
     const [clickedUserList, setClickedUserList] = useState([]);  // 여러 유저 ids
     const [chatPartner, setChatPartner] = useState([]); //유저 객체들
@@ -30,8 +31,14 @@ const Chat = () => {
     const { data: clickedUserData } = useQuery({ 
 		queryKey: ['clickedUserData', {id: clickedUser}],
 		queryFn: () => fetchClickedUserData(clickedUser), 
-        enabled: clickedUser !== '',
+        enabled: clickedUser !== '' && !!clickedUser,
 	});
+    useEffect(() => {
+        if(clickedUserData){ console.log('clickedUserData:', clickedUserData)}
+        if(clickedUserData){
+            setChatPartner([clickedUserData]);
+        }
+    }, [clickedUserData, messageList])
 
 
     const {data: roomsAndChats} = useQuery({
@@ -40,64 +47,48 @@ const Chat = () => {
         initialData: [] //이니셜데이터 설정을 해두지 않으면 오류남
     });
 
-
-    const { data: conversationByUsers } = useQuery({ 
-		queryKey: ['conversationByUsers', {id: clickedUserList}],//
-		queryFn: () => fetchConversationByUsers(clickedUserList), 
-        enabled: clickedUserList && clickedUserList.length > 0 
+    const { data: existingChat } = useQuery({ 
+		queryKey: ['existingChat', {id: roomId, clickedUserList}],
+		queryFn: () => fetchChat(roomId, clickedUserList), 
+        onSuccess: (data) => {
+            if (data === null) {
+              console.log("Chat is null");
+            } 
+          },
+        enabled: !!roomId || (clickedUserList && clickedUserList.length > 0)
 	});  
 
     useEffect(() => {
-        if(conversationByUsers && conversationByUsers.length > 0){
-            setMessageList(conversationByUsers);
-            const partnerIdArray = conversationByUsers[0].members.filter(member => member !== user.id); // partner 의 아이디
-            setClickedUserList(partnerIdArray) // partner 의 아이디들로 객체들을 가져옴 
-            console.log('✅파트너는?', partnerIdArray);
-        }else{ // 둘 사이의 채팅이 존재하지 않으면 messageList 는 null
-            setMessageList(null);
+        if (existingChat && existingChat.length === 0) {
+            setMessageList([]);  
+            setChatPartner([]);  
+          } else if(existingChat && existingChat.length > 0){
+            console.log('existingChat의 값: ', existingChat);
+            setMessageList(existingChat);
+            // setIsUserClicked(true); // 첫번째 대화 상대가 정해짐 렌더링 된 후 : isUserClicked = true            
+            const messageListLast = existingChat.slice(-1)[0];
+            const membersObj = [...messageListLast.recipient, messageListLast.sender];
+            const partner = membersObj.filter(member => member._id !== user.id); 
+            setChatPartner(partner);
         }
-        
-    },[conversationByUsers, user]) // 기존 메세지와 유저 객체 까지는 설정
-
-    useEffect(() => {
-        if(clickedUserData){
-            console.log('🔎clickedUserData',clickedUserData);
-            setChatPartner([clickedUserData]); 
-        }else if(multiChatPartner){
-            setChatPartner(multiChatPartner.users);
-        }
-    }, [clickedUserData , multiChatPartner]);
+    }, [existingChat, user]);
 
 
 
     const handleChatClick = async (id) => {
         console.log('handleChatClick 호출됨');
-        try {
-            const existingChat = await fetchChat(id);
-
-            if (existingChat && existingChat.length > 0) {
-                setMessageList(existingChat);
-				//새로운 유저가 들어올 경우 대비하여 가장 마지막 챗에서 추출
-                const messageListLast = existingChat.slice(-1)[0];
-                const membersObj = [...messageListLast.recipient, messageListLast.sender];
-                const partner = membersObj.filter(member => member._id !== user.id); 
-                setChatPartner(partner);
-                // console.log('현재 챗에서 파트너는? :', partner);
-            }else {
-                console.log('채팅이 존재하지 않습니다.');
-            }
-        } catch (error) {
-            console.error('Error fetching user data:', error);
-        }
+        setClickedUser();
+        setClickedUserList([]); 
+        setRoomId(id);
     };
     
     const handleUserClick = async(id) => {
-        //console.log('handleUserClick 호출됨, id 값:',id);
+        console.log('handleUserClick 호출됨, id 값:',id);
         try {
-            setIsUserClicked(true); // 첫번째 대화 상대가 정해짐 렌더링 된 후 : isUserClicked = true            
+            setRoomId();
+            setIsUserClicked(true);  //add delet        
             setClickedUser(id);
-            setClickedUserList([id]); 
-            setMessageList(null); 
+            setClickedUserList([id]);
             setIsUserClicked(false);
         } catch (error) {
             console.error('Error fetching user data:', error);

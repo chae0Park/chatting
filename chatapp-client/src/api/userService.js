@@ -13,7 +13,7 @@ export const signup = async (fd) => {
 
 export const login = async(fd) => {
     try{
-        const response =  await api.post('http://localhost:5001/api/login', fd);
+        const response =  await axios.post('http://localhost:5001/api/login', fd);
 
         const { accessToken, user } = response.data;
         localStorage.setItem('accessToken', accessToken);
@@ -25,10 +25,12 @@ export const login = async(fd) => {
     }
 };
 
-//todo: refreshToken 뜯어고치기
-export const refreshAccessToken = async (refreshToken) => {
+
+export const refreshAccessToken = async () => {
     try{
-        const response = await axios.post('http://localhost:5001/api/refresh-token', {refreshToken});
+        const response = await axios.post('http://localhost:5001/api/refresh-token', {
+            withCredentials: true,
+        });
         return response.data.accessToken;
     }catch(error){
         throw new Error('Failed to refresh access token');
