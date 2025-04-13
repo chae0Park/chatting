@@ -8,17 +8,14 @@ import { fetchUserData } from '../api/userService';
 export const queryClient = new QueryClient();
 
 //fetch user info 
-export const useFetchLoginUser = () => {
-    const accessToken = localStorage.getItem('accessToken');
+export const useFetchLoginUser = ({accessToken}) => {
     const { data, isLoading, isError } = useQuery({
         queryFn : fetchUserData,
         queryKey : ['loginUser'],
-        enabled: !!accessToken,
+        enabled: !!accessToken && (accessToken !== ''),
         refetchOnWindowFocus: false, // Disable auto-refetch on window focus
     });
-    if (!accessToken) {
-        return { data: null, isLoading: false, isError: false }; // accessToken이 없으면 바로 return
-    }
+
     return{ data, isLoading, isError };
 }; 
 

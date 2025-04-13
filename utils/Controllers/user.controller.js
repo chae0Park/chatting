@@ -64,14 +64,13 @@ const userController = {};
                 return 
             }
 
-            const accessToken  = jwt.sign({ userId: user._id }, jwtSecretKey,{ expiresIn: '1h' }); 
+            const accessToken  = jwt.sign({ userId: user._id }, jwtSecretKey,{ expiresIn: '3m' }); 
             const refreshToken = jwt.sign({ userId: user._id }, jwtRefreshSecretKey, { expiresIn: '7d' }); 
-            console.log('refreshToken의 값값',refreshToken);
 
             user.online = true;
             await user.save();
 
-            // 리프레시 토큰을 HTTP-only 쿠키로 설정하여 저장장
+            // 리프레시 토큰을 HTTP-only 쿠키로 설정하여 저장
             res.cookie('refreshToken', refreshToken, {
                 httpOnly: true,
                 maxAge: 7 * 24 * 60 * 60 * 1000,
@@ -132,7 +131,6 @@ const userController = {};
         if(!user){
             return res.status(404).json({ message: 'User not found' });
         }
-        //console.log('user friend:', user.friends);
         const friends = await User.find({ _id: { $in: user.friends.map(f => f.userId.toString()) } });
 
         const responseData = {
@@ -159,7 +157,7 @@ const userController = {};
     }
 
     //edit user info - name, profileImage, password
-    userController.editUser = async(req, res) => {
+    userController.editUser = async(req, res, next) => {
         try{
             const userId = req.userId; 
             const user = await User.findById(userId);
@@ -191,9 +189,12 @@ const userController = {};
             await user.save();
             res.status(200).json({ message: 'User info updated successfully', user });
 
-        }catch(error){
-            console.error(error);
-            res.status(500).json({ message: 'Failed to update user info' });
+        }catch(err){
+            console.error(err.stack);
+            res.status(err.status || 500).json({ 
+                success: false,
+                message: err.message || 'Internal Server Error', 
+            });
         }
     };
 
@@ -264,7 +265,7 @@ const userController = {};
 
 
     userController.fetchOneUserData = async(req, res) => {
-        console.log('one user fetch controller called');
+        // console.log('one user fetch controller called');
         try{
             // const user = req.userId;
             const friendId = req.params.id
@@ -277,7 +278,7 @@ const userController = {};
             if(!foundUser){
                 return res.status(400).json({message:'db prob mate when finding the clicked user.'});
             }
-            console.log('foundUser: ', foundUser);
+            // console.log('foundUser: ', foundUser);
             res.status(200).json(foundUser); //클릭한 유저의 객체를 돌려줌
 
         }catch(e){

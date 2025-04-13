@@ -18,11 +18,11 @@ const storage = multer.diskStorage({
 });
 
 const fileFilter = (req, file, cb) => {
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'video/mp4'];
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'video/mp4'];
     if (allowedTypes.includes(file.mimetype)) {
         cb(null, true);
     } else {
-        cb(new Error('Unsupported file type. Allowed types: JPEG, PNG, GIF, MP4'), false);
+        cb(new Error('Unsupported file type. Allowed types: JPEG, PNG, WEBP, GIF, MP4'), false);
     }
 };
 

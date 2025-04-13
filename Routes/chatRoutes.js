@@ -9,6 +9,4 @@ router.get('/chat', verifyAccessToken, chatController.fetchConversation);
 
 router.put('/room/:id', verifyAccessToken, chatController.deleteSelectedChatRoom);
 
-
-
 module.exports = router;

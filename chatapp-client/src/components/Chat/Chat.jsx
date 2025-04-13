@@ -18,7 +18,8 @@ const Chat = () => {
     const [clickedUserList, setClickedUserList] = useState([]);  // 여러 유저 ids
     const [chatPartner, setChatPartner] = useState([]); //유저 객체들
     const [isUserClicked, setIsUserClicked] = useState(false); // 클릭된 상태를 추적
-    const { data: user } = useFetchLoginUser();
+    const accessToken = localStorage.getItem('accessToken');
+    const { data: user } = useFetchLoginUser({accessToken});
 
     const {data : multiChatPartner } = useQuery({
         queryKey: ['multiChatPartner', {id: clickedUserList}],

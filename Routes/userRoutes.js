@@ -10,9 +10,6 @@ router.post('/signup', upload.single('profileImage'), userController.saveUser);
 // 유저 로그인 
 router.post('/login', userController.login);
 
-//refresh token 
-router.post('/refresh-token', userController.refreshToken);
-
 // 유저 정보 조회 API
 router.get('/user', verifyAccessToken, userController.getLoggedInUser);
 

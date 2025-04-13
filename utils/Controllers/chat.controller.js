@@ -46,7 +46,7 @@ chatController.fetchConversation = async (req, res) => {
 	const {userIds} = req.query;
 	const {roomId} = req.query;
 
-  console.log('userIds', userIds);
+  // console.log('userIds', userIds);
 	
 	if (!userId) {
       return res.status(401).json({ message: 'Unauthorised while fetching the selected chat conversation' });
@@ -61,7 +61,7 @@ chatController.fetchConversation = async (req, res) => {
     let room;
     if(userIds){
       membersIds = [userId, ...userIds];
-      console.log('membersIds', membersIds);
+      // console.log('membersIds', membersIds);
       room = await Room.findOne(
       {members: { $all: membersIds }, $expr: { $eq: [{ $size: "$members" }, membersIds.length] }}
       );
@@ -70,13 +70,13 @@ chatController.fetchConversation = async (req, res) => {
         return res.status(200).json(null);
       }
 
-      console.log('멤버들의 id로 찾은 room', room);
+      // console.log('멤버들의 id로 찾은 room', room);
 
     }
 
     if(roomId){
       room = await Room.findById(roomId); //클릭한 room 1개를 의미 
-      console.log('룸 id로 찾은 room', room);
+      // console.log('룸 id로 찾은 room', room);
   
       if(!room){
         return res.status(200).json(null);
@@ -112,7 +112,7 @@ chatController.fetchConversation = async (req, res) => {
       };
     });
 
-    console.log('대화 불러오기 conversations', conversations);
+    // console.log('대화 불러오기 conversations', conversations);
     return res.status(202).json(conversations);
   } catch (error) {
     return res.status(404).json({ message: error.message || 'Something went wrong while fetching the clicked conversation' });
@@ -121,17 +121,17 @@ chatController.fetchConversation = async (req, res) => {
 
 
 chatController.findChatRoom = async (recipientIds, sender) => {
-  console.log('findChatRoom() is called!', recipientIds, sender.id);
+  // console.log('findChatRoom() is called!', recipientIds, sender.id);
 
   try{
     const membersIds = [sender.id, ...recipientIds];
-    console.log('findChatRoom() - membersIds:', membersIds);
+    // console.log('findChatRoom() - membersIds:', membersIds);
     const existingRoom = await Room.findOne(
       {members: { $all: membersIds }, $expr: { $eq: [{ $size: "$members" }, membersIds.length] }}
     );
 
     if(existingRoom){
-      console.log('findChatRoom() - existingRoom:', existingRoom);
+      // console.log('findChatRoom() - existingRoom:', existingRoom);
     }
     return existingRoom;
   }catch(e){
@@ -146,7 +146,7 @@ chatController.saveChatRoom = async (recipient, sender) => {
 
     const recipients = Array.isArray(recipient) ? recipient : [recipient];
 
-    console.log('recipients:', recipients);
+    // console.log('recipients:', recipients);
 
     // sender-recipiend 를 모두 포함한 room 이 있는지 확인
     let membersIds = [sender.id, ...recipients.map(r => r._id)];
@@ -181,11 +181,11 @@ chatController.saveChatRoom = async (recipient, sender) => {
 chatController.saveChat = async(message, recipient, sender, room) => {
   try{  
 
-    console.log('saveChat() param으로 받은 room은?', room);
+    // console.log('saveChat() param으로 받은 room은?', room);
     if(room.leftMembers.length > 0){
       room.leftMembers =[];
     }
-    console.log('saveChat() leftroom 초기화', room);
+    // console.log('saveChat() leftroom 초기화', room);
     
       let recipients = Array.isArray(recipient) ? recipient : [recipient];
 
@@ -223,7 +223,6 @@ chatController.saveChat = async(message, recipient, sender, room) => {
        console.log('saveChat이 성공하면 -', newMessage);
        return newMessage;
   }catch(e){
-      //console.error('Failed to save chat message', e);
       throw new Error('Failed to save chat message');
   }
 };

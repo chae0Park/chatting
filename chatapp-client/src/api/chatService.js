@@ -1,36 +1,11 @@
 //saving users' msgs
 import api from './axiosInstance.js';
-//서비스 함수 만들 때 api를 자꾸 빼먹어서 router호출이 안됨
 
-export const fetchRoomDataOfUser = async () => {
-  try {
-  
-    const response = await api.get('http://localhost:5001/api/roomDataOfUser', {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-    },
-    });
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching chat messages:', error);
-    throw error;
-  }
-} 	  
-
+// default
 export const fetchChatsByRoom = async () => {
 
     try {
-      const response = await api.get('http://localhost:5001/api/room/chats', {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-        }
-      });
-    //   console.log('fetchChatsByRoom응답-chat:', response.data.lastMessage.chat);
-    //   console.log('fetchChatsByRoom응답-profileImage:', response.data.lastMessage.sender.profileImage);
-    //   console.log('fetchChatsByRoom응답-name:', response.data.lastMessage.sender.name);
-    
-    // console.log('fetchChatsByRoom응답-lastMessage:', response.data);
-
+      const response = await api.get('/room/chats');
       return response.data;  
     } catch (error) {
       console.error('Error fetching chat messages:', error);
@@ -38,41 +13,33 @@ export const fetchChatsByRoom = async () => {
     }
   };
 
-
-  //클릭한 chat의 room id를 통해 chat들을 불러온다 
+  //클릭한 chat의 room id 혹은 유저 아이디들을을 통해 chat들을 불러온다 
   export const fetchChat = async (roomId, userIds) => {
     // console.log('클릭한 대화를 가지고 오기 위해 필요한 roomId는?', roomId, 'userIds는?', userIds);
     try{ 
-        const response = await api.get('http://localhost:5001/api/chat', {
-            headers: {
-                Authorization : `Bearer ${localStorage.getItem('accessToken')}`,
-            },
+        const response = await api.get('/chat', {
             params : {
               userIds: userIds,
               roomId: roomId,
           }
         });
-        console.log('fetchChat으로 가져오는 데이터:' , response.data);
+        // console.log('fetchChat으로 가져오는 데이터:' , response.data);
         return response.data;
     }catch(error){
         throw new Error('Error occurred', error);
     }
   };
 
-  
-
   export const deleteSelectedChatRoom = async(id) => {
-    console.log('deleteSelectedChatRoom이 호출됨');
     try{
-      const response = await api.put(`http://localhost:5001/api/room/${id}`, {}, {
-        headers: {
-          Authorization : `Bearer ${localStorage.getItem('accessToken')}`,
-        },
-      });
-      
-      console.log('유저 객체의 rooms - roomId, room 객체의 memebers에서 userId 성공적으로 삭제됨', response.data);
+      const response = await api.put(`/room/${id}`, {});
       return response.data;
     }catch(error){
       throw error;
     }
   }
+
+  /* put 요청 보낼 때 {} 사용하는 이유: 
+    PUT 요청은 보통 body가 필요한데, 보낼 데이터가 없더라도 body가 있다는 걸 알려주기 위해 {}를 넣어야 함함
+    그래야 요청이 제대로 동작.
+  */

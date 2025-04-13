@@ -15,14 +15,20 @@ const ChattingContainer = ({ clickedUserData, multiChatPartner, messageList, use
     },[messageList])
 
 
-    useEffect(() => {
-        if(multiChatPartner){
-            console.log("ChattingContainer 에서 찍어본 multiChatPartner?", multiChatPartner.users);
-        }
-        if(messageList){
-            console.log("ChattingContainer 에서 찍어본 messageList?", messageList);
-        }
-    }, [multiChatPartner, messageList])
+    // useEffect(() => {
+    //     if(multiChatPartner){
+    //         console.log("ChattingContainer 에서 찍어본 multiChatPartner?", multiChatPartner.users);
+    //     }
+    //     if(messageList){
+    //         console.log("ChattingContainer 에서 찍어본 messageList?", messageList);
+    //     }
+    //     if(clickedUserData){
+    //         console.log("ChattingContainer 에서 찍어본 clickedUserData?", clickedUserData);
+    //     }
+    //     if(chatPartner){
+    //         console.log("ChattingContainer 에서 찍어본 chatPartner?", chatPartner);
+    //     }
+    // }, [multiChatPartner, messageList, clickedUserData, chatPartner])
 
 
     return (
@@ -66,8 +72,8 @@ const ChattingContainer = ({ clickedUserData, multiChatPartner, messageList, use
                                         )}
                                     </React.Fragment>
                                 )
-                            )
-                        )}
+                            ))
+                        }
                     </div>
                 )}
 
@@ -88,20 +94,6 @@ const ChattingContainer = ({ clickedUserData, multiChatPartner, messageList, use
                         ))}
                     </div>
                 )} 
-                {/* clickedUserData 만 존재  */}
-                {clickedUserData && !messageList.length > 0 &&
-                    <div className='userfriend-img-container'>
-                        <div className='chat-userfriend-img'>
-                            <img
-                                className='img-rsc'
-                                src={`http://localhost:5001${clickedUserData.profileImage}`}
-                                alt='user profile clicked'
-                            />
-                        </div>
-                    </div>
-                }
-
-
             </div>
 
 

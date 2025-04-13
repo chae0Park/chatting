@@ -2,16 +2,18 @@ import './Home.css';
 import homeImage from '../../assets/home-main-image.jpg'
 import { Link } from 'react-router-dom';
 import { useFetchLoginUser } from '../../hooks/util';
-import { useEffect } from 'react'; 
+import { useEffect } from 'react'; // , useState
 import socket from '../../server.js';
 
 
 
 const Home = () => {
-    const { data: user } = useFetchLoginUser();
+    const accessToken = localStorage.getItem('accessToken');
+    const { data: user } = useFetchLoginUser({accessToken});
 
     useEffect(() => {
         if (user) {
+            console.log('user: ',user);
             const userId = user.id
             socket.emit("login", userId); 
         }
