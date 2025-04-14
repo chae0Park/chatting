@@ -6,9 +6,9 @@ const jwtRefreshSecretKey =  process.env.REFRESH_SECRET_KEY;
 
 const verifyAccessToken = ( req, res, next ) => {
     const token  = req.headers['authorization']?.split(' ')[1];
-    console.log('verifyAccessToken - Token in header:', token);
-    const refreshToken = req.cookies.refreshToken;
-    console.log('verifyAccessToken - refreshToken:', refreshToken);
+    // console.log('verifyAccessToken - Token in header:', token);
+    // const refreshToken = req.cookies.refreshToken;
+    // console.log('verifyAccessToken - refreshToken:', refreshToken);
                    
 
 
@@ -40,7 +40,7 @@ const verifyAccessToken = ( req, res, next ) => {
                             { expiresIn: '15m' }
                         );
 
-                        console.log('newAccessToken', newAccessToken);
+                        // console.log('newAccessToken', newAccessToken);
 
                         jwt.verify(newAccessToken, jwtSecretKey, (newAccessTokenErr, user) => {
                             if (newAccessTokenErr) {

@@ -7,7 +7,7 @@ const cors = require('cors');
 const app = express();
 app.use(cors({
     origin: 'https://chatting-sage-psi.vercel.app',
-    methods: 'GET,POST,PUT,DELETE',           
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],           
     allowedHeaders: 'Content-Type,Authorization', 
     credentials: true,
 }));
