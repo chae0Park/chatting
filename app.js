@@ -25,10 +25,16 @@ app.use('/api', chatRoutes);  // 채팅 관련 API
 app.use(errorHandler);
 
 //db address bring DB from .env file to process as db address
-mongoose.connect(process.env.DB, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-}).then(() => console.log('connected to db'));
+// mongoose.connect(process.env.DB, {
+//     useNewUrlParser: true,
+//     useUnifiedTopology: true,
+// }).then(() => console.log('connected to db'));
+
+console.log("MONGODB_URI:", process.env.MONGODB_URI);
+
+mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+    .then(() => { console.log('MAtlas connected 👏')})
+    .catch(err => console.error('⚠️MongoDB connection error:', err));
 
 module.exports = app
 
