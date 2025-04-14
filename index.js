@@ -13,6 +13,10 @@ const io = new Server(httpServer, {
 //기존코드
 require('./utils/io')(io);
 
+app.get('/', (req, res) => {
+    res.send('API is running');
+});
+
 //turn on the server using listen()
 httpServer.listen(process.env.PORT, ()=>{
     console.log('server listening on port', process.env.PORT)
