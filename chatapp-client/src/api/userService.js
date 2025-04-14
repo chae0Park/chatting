@@ -4,7 +4,7 @@ import api from './axiosInstance.js'
 
 //start authoriseService
 export const signup = async (fd) => {
-    return await axios.post('http://localhost:5001/api/signup', fd, {
+    return await axios.post(`${process.env.REACT_APP_API_URL}/signup`, fd, {
         headers: {
             'Content-Type': 'multipart/form-data',
         },

@@ -75,6 +75,8 @@ const userController = {};
             res.cookie('refreshToken', refreshToken, {
                 httpOnly: true,
                 maxAge: 7 * 24 * 60 * 60 * 1000,
+                secure: true,  
+                sameSite: 'None'
             });
 
             res.status(200).json({

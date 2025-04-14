@@ -6,14 +6,16 @@ require('dotenv').config();
 const cors = require('cors');
 const app = express();
 app.use(cors({
-    origin: 'http://localhost:3000',
+    origin: 'https://chatting-sage-psi.vercel.app',
+    methods: 'GET,POST,PUT,DELETE',           
+    allowedHeaders: 'Content-Type,Authorization', 
     credentials: true,
 }));
 app.use(express.json());
 app.use(cookieParser());
 //이미지 읽기
-const path = require('path');
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));  
+// const path = require('path');
+// app.use('/uploads', express.static(path.join(__dirname, 'uploads')));  
 
 const userRoutes = require('./Routes/userRoutes')
 const chatRoutes = require('./Routes/chatRoutes')
