@@ -182,5 +182,6 @@ $RECYCLE.BIN/
 
 # End of https://www.toptal.com/developers/gitignore/api/react,windows,node
 
+uploads/
 
 chatapp troubleshooting.txt

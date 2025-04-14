@@ -10,7 +10,6 @@ const ProfileContainer = ({ clickedUserList, user, roomsAndChats, handleChatClic
     const [searchbarActive, setSearchbarActive] = useState(false);
     const [query, setQuery] = useState('');
     const queryValue = useRef();
-    //const navigate = useNavigate();
 
     const { mutate } = useMutation({
         mutationFn: deleteSelectedChatRoom,
@@ -40,11 +39,6 @@ const ProfileContainer = ({ clickedUserList, user, roomsAndChats, handleChatClic
     if (isSearchError) {
         return <div>Error loading search data</div>; // 오류 발생 시 에러 메시지 표시
     }
-
-
-    // if(clickedUserList){
-    //     console.log('❤️clickedUserList:', clickedUserList);
-    // }
 
 
     const handleAddFriend = (friendId) => {
@@ -122,6 +116,7 @@ const ProfileContainer = ({ clickedUserList, user, roomsAndChats, handleChatClic
         return { ...room, chat };
     });
 
+
     //room.members 중에 유저가 있는지 확인 - 있으면 해당 유저를 검색했을 때 채팅방을 함께 보여준다 
     const chatRoom = searchedUserData?.searchedLastMessage?.filter(lastMessage =>
         rooms.some(room => room._id === lastMessage.room &&
@@ -137,7 +132,7 @@ const ProfileContainer = ({ clickedUserList, user, roomsAndChats, handleChatClic
             <div className='chat-user-profile-container-header'>
                 <div className='chat-profile'>
                     <p className='chat-user-img'>
-                        {user && <img src={`http://localhost:5001${user.profileImage}`} alt='user' className='img-rsc' />}
+                        {user && <img src={user.profileImage} alt='user' className='img-rsc' />}
                     </p>
                     <p>
                         {user ? user.name : 'no user found'}
@@ -160,11 +155,6 @@ const ProfileContainer = ({ clickedUserList, user, roomsAndChats, handleChatClic
                     <>
                         <div style={{ textAlign: 'center', marginBottom: '7px', fontSize: 'small', color: 'gray' }}>users</div>
                         {user.friends.map((f) => {
-                            // if (clickedUserList) {
-                            //     console.log('❤️clickedUserList:', clickedUserList);
-                            // }
-                            // console.log('❤️f._id:', f._id);
-                            
                             let currentAddState;
 
                             if (clickedUserList.length > 0) {
@@ -226,6 +216,7 @@ const ProfileContainer = ({ clickedUserList, user, roomsAndChats, handleChatClic
                                 <div style={{ textAlign: 'center', marginBottom: '7px', fontSize: 'small', color: 'gray' }}>chats</div>
                                 {searchedUserData.searchedLastMessage.map((lastMessage) => {
                                     console.log("lastMessage when map()", lastMessage);  // Log each `lastMessage` to the console
+                                    const members = [lastMessage.sender, ...lastMessage.recipient];
                                     return (
                                         <PreviewCard
                                             key={lastMessage._id}
@@ -235,6 +226,7 @@ const ProfileContainer = ({ clickedUserList, user, roomsAndChats, handleChatClic
                                             handleChatClick={handleChatClick}
                                             createdAt={lastMessage.createdAt}
                                             handleDeleteSelectedChat={handleDeleteSelectedChat}
+                                            searchedChatMembers={members}
                                         />
                                     );
                                 })}
@@ -260,7 +252,7 @@ const ProfileContainer = ({ clickedUserList, user, roomsAndChats, handleChatClic
                                 createdAt={roomWithChat.chat.createdAt}
                                 handleChatClick={handleChatClick}
                                 handleDeleteSelectedChat={handleDeleteSelectedChat}
-
+                                members={roomWithChat.members}
                             />
                         ))}
                     </>

@@ -12,7 +12,7 @@ export const useFetchLoginUser = ({accessToken}) => {
     const { data, isLoading, isError } = useQuery({
         queryFn : fetchUserData,
         queryKey : ['loginUser'],
-        enabled: !!accessToken && (accessToken !== ''),
+        enabled: !!accessToken && (accessToken !== '' || accessToken !== null),
         refetchOnWindowFocus: false, // Disable auto-refetch on window focus
     });
 

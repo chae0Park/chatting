@@ -1,11 +1,12 @@
 const express=  require('express');
 const router = express.Router();
 const verifyAccessToken = require('../Middleware/authMiddleware');
-const upload = require('../Middleware/upload');
+const { upload, uploadToS3 } = require('../Middleware/aws-upload');
 const userController = require('../utils/Controllers/user.controller')
 
 // 유저 정보 저장
-router.post('/signup', upload.single('profileImage'), userController.saveUser);
+router.post('/signup', upload, uploadToS3, userController.saveUser);
+// router.post('/signup', upload, uploadToS3, userController.saveUser); // upload.single('profileImage'),
 
 // 유저 로그인 
 router.post('/login', userController.login);
@@ -14,7 +15,8 @@ router.post('/login', userController.login);
 router.get('/user', verifyAccessToken, userController.getLoggedInUser);
 
 // 유저 정보 수정 - 비밀번호 / 프로필이미지
-router.put('/user/edit', upload.single('profileImage'), verifyAccessToken, userController.editUser);
+//router.put('/user/edit', upload.single('profileImage'), verifyAccessToken, userController.editUser);
+router.put('/user/edit', verifyAccessToken, upload, uploadToS3, userController.editUser); // upload.single('profileImage'),
 
 // ------------------------------
 

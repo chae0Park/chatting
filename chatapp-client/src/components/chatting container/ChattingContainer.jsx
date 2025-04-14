@@ -4,7 +4,7 @@ import { formDate } from "../../hooks/util";
 import { useRef, useEffect } from 'react'; 
 import React from 'react';
 
-const ChattingContainer = ({ clickedUserData, multiChatPartner, messageList, user, chatPartner }) => {
+const ChattingContainer = ({ multiChatPartner, messageList, user, chatPartner }) => {
     const chattingContentsContainerRef = useRef(null); 
 
     useEffect(() => {
@@ -13,23 +13,6 @@ const ChattingContainer = ({ clickedUserData, multiChatPartner, messageList, use
             container.scrollTop = container.scrollHeight; 
         }
     },[messageList])
-
-
-    // useEffect(() => {
-    //     if(multiChatPartner){
-    //         console.log("ChattingContainer 에서 찍어본 multiChatPartner?", multiChatPartner.users);
-    //     }
-    //     if(messageList){
-    //         console.log("ChattingContainer 에서 찍어본 messageList?", messageList);
-    //     }
-    //     if(clickedUserData){
-    //         console.log("ChattingContainer 에서 찍어본 clickedUserData?", clickedUserData);
-    //     }
-    //     if(chatPartner){
-    //         console.log("ChattingContainer 에서 찍어본 chatPartner?", chatPartner);
-    //     }
-    // }, [multiChatPartner, messageList, clickedUserData, chatPartner])
-
 
     return (
         <>
@@ -45,7 +28,7 @@ const ChattingContainer = ({ clickedUserData, multiChatPartner, messageList, use
                                             <div className='chat-userfriend-img'>
                                                 <img
                                                     className="img-rsc"
-                                                    src={`http://localhost:5001${p.profileImage}`}
+                                                    src={p.profileImage}
                                                     alt='chatting partner'
                                                 />
                                             </div>
@@ -63,7 +46,7 @@ const ChattingContainer = ({ clickedUserData, multiChatPartner, messageList, use
                                         <div className='chat-userfriend-img'>
                                             <img
                                                 className="img-rsc"
-                                                src={`http://localhost:5001${p.profileImage}`}
+                                                src={p.profileImage}
                                                 alt='chatting partner'
                                             />
                                         </div>
@@ -86,7 +69,7 @@ const ChattingContainer = ({ clickedUserData, multiChatPartner, messageList, use
                                 <div className='chat-userfriend-img' key={chatPartner._id}>
                                     <img
                                         className="img-rsc"
-                                        src={`http://localhost:5001${chatPartner.profileImage}`}
+                                        src={chatPartner.profileImage}
                                         alt={`user profile clicked ${chatPartner.name}`}
                                     />
                                 </div>
@@ -120,7 +103,7 @@ const ChattingContainer = ({ clickedUserData, multiChatPartner, messageList, use
                                             <div className='chatting-card-profile-img'>
                                                 <img
                                                     className='img-rsc'
-                                                    src={`http://localhost:5001${message.sender.profileImage}`}
+                                                    src={message.sender.profileImage}
                                                     alt='chatting partner'
                                                 />
                                             </div>

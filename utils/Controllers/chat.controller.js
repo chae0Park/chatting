@@ -32,6 +32,7 @@ chatController.getChatMessagesByRoom = async (req, res) => {
           return null; // if no chats in the room, return null
         })
       );
+      
       return res.json({rooms, lastMessages}); // return res.json(rooms); 
       
     } catch (e) {

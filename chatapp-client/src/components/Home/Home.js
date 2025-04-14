@@ -17,7 +17,10 @@ const Home = () => {
             const userId = user.id
             socket.emit("login", userId); 
         }
-    }, [user]); 
+        if(accessToken){
+            console.log('home컴포넌트에서 찍힌 accessToken : ', accessToken);
+        }
+    }, [user, accessToken]); 
 
     //when the button is Logout and  user clicks 'Logout' then 'localStorage.removeItem('accessToken');'
     const handleLogout = () => {

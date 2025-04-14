@@ -13,7 +13,8 @@ const userController = {};
     // 회원가입 
     userController.saveUser = async(req, res) => {
         const { name, email, currentPassword, newPassword, phone, online } = req.body
-        let profileImage = req.file ? `/uploads/${req.file.filename}` : null;
+        let profileImage = req.file ? req.file.s3Url : null;
+
 
         try{
             const [existingEmail, existingPhone] = await Promise.all([
@@ -66,7 +67,7 @@ const userController = {};
 
             const accessToken  = jwt.sign({ userId: user._id }, jwtSecretKey,{ expiresIn: '3m' }); 
             const refreshToken = jwt.sign({ userId: user._id }, jwtRefreshSecretKey, { expiresIn: '7d' }); 
-
+            console.log('login 컨트롤러에서 생성된 refreshToken: ',refreshToken);
             user.online = true;
             await user.save();
 
@@ -92,35 +93,6 @@ const userController = {};
         }
     };
 
-
-    
-
-    userController.refreshToken = async (req, res) => {
-        const { refreshToken } = req.body;
-
-        if(!refreshToken){
-            return res.status(400).json({ message: 'Refresh token is required' });
-        }
-
-        try{
-            const decoded = jwt.verify(refreshToken, jwtRefreshSecretKey);
-
-            const user = await User.findById(decoded.userId);
-            if(!user || user.refreshToken !== refreshToken){
-                return res.status(400).json({ message: 'Invalid or expried refresh token'});
-            }
-            // if the refreshToken from request matches user's refreshToken create a new access token. 
-            const newAccessToken = jwt.sign({ useId : user._id }, jwtSecretKey, { expiresIn: '1h' });
-            
-            res.status(200).json({ newAccessToken });
-
-        }catch(error){
-            res.status(400).json({ message: 'Invalid or expired refresh token' });
-        }
-    };
-
-
-
     // auth.controller 끝----------------------
 
 
@@ -144,7 +116,7 @@ const userController = {};
             friends,
         };
 
-        //console.log('로그인한 유저 정보: ', responseData);
+        // console.log('로그인한 유저 정보: ', responseData);
 
         res.status(200).json(responseData);
 
@@ -167,7 +139,8 @@ const userController = {};
             }
 
             const { name, currentPassword, newPassword } = req.body;
-            const profileImage = req.file; // Get the file from req.file
+            const newProfileImage = req.file ? req.file.s3Url : null; // Get the file from req.file
+
 
             if(name) user.name = name;
 
@@ -180,11 +153,10 @@ const userController = {};
                 };
             };
 
-            if(profileImage){
-                //파일네임은 멀터 속성에 의해 추가되어짐 
-                user.profileImage = `/uploads/${profileImage.filename}`;
-                //console.log('파일경로: ', profileImage.filename);
+            if(newProfileImage){
+                user.profileImage = newProfileImage
             };
+            
 
             await user.save();
             res.status(200).json({ message: 'User info updated successfully', user });

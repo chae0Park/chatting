@@ -1,4 +1,4 @@
-import axios from 'axios'; //sign up, login
+import axios from 'axios'; //sign up
 import api from './axiosInstance.js'
 
 
@@ -13,7 +13,7 @@ export const signup = async (fd) => {
 
 export const login = async(fd) => {
     try{
-        const response =  await axios.post('http://localhost:5001/api/login', fd);
+        const response =  await api.post('/login', fd);
 
         const { accessToken, user } = response.data;
         localStorage.setItem('accessToken', accessToken);
@@ -38,16 +38,11 @@ export const edit = async (formData) => {
         );
     }
 }
-
 //end authoriseService
 
 
 //start userService
   export const fetchUserData = async () => {
-    const accessToken = localStorage.getItem('accessToken');
-    if (!accessToken) {
-       return ;
-    }
     try{ 
         const response = await api.get('/user');
         return response.data;

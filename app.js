@@ -1,4 +1,5 @@
 const express = require("express");
+const cookieParser = require('cookie-parser');
 const errorHandler = require("./Middleware/errorHandler")
 const mongoose = require("mongoose");
 require('dotenv').config();
@@ -9,6 +10,7 @@ app.use(cors({
     credentials: true,
 }));
 app.use(express.json());
+app.use(cookieParser());
 //이미지 읽기
 const path = require('path');
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));  

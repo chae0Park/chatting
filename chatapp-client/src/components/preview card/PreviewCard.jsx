@@ -15,11 +15,13 @@ const PreviewCard = ({
     lastMessageRoomId, 
     lastMessage,
     handleDeleteSelectedChat,
+    members,
     handleSendUserId,
     f,
     logginedUser,
     onAddMoreUser,
-    currentAddState
+    currentAddState,
+    searchedChatMembers
     }) => {  
     
     const date = new Date(createdAt); // Convert to Date object
@@ -45,10 +47,10 @@ const PreviewCard = ({
                 <div className='chat-room-preview-card' onClick={() => handleChatClick(id)}>
                     <div className='chat-room-preview-layout1'>
                         <div className='chat-room-preview-profile-img'>
-                            <img src={`http://localhost:5001${profileImage}`} alt='kelly' className='img-rsc' />
+                            <img src={profileImage} alt='kelly' className='img-rsc' />
                         </div>
                         <div className='chat-room-preview-contents'>
-                            <div className='preview-contents-name'>{name}
+                            <div className='preview-contents-name'>{name} {members.length - 2 > 0 ? `+ ${members.length - 2} more`  : null}
                             </div>
                             <div>{truncateText(chat)}</div>
                         </div>
@@ -79,7 +81,7 @@ const PreviewCard = ({
                     }}	
                 >   
                     <div className='chat-room-preview-layout1'>
-                        <div className='chat-room-preview-profile-img'><img  src={`http://localhost:5001${f.profileImage}`} alt='searched friend' className='img-rsc'/></div>
+                        <div className='chat-room-preview-profile-img'><img  src={f.profileImage} alt='searched friend' className='img-rsc'/></div>
                         <div className='chat-room-preview-contents-friend'>
                             <div className='preview-contents-name'>{f.name} 
                                 {f.online ? <span className='online-state'>&nbsp;•</span> : null}
@@ -104,7 +106,7 @@ const PreviewCard = ({
             return(
                 <div className='chat-room-preview-card' onClick={() => handleUserClick(friendId)}>    
                     <div className='chat-room-preview-layout1'>
-                        <div className='chat-room-preview-profile-img'><img  src={`http://localhost:5001${friend.profileImage}`} alt='searched friend' className='img-rsc'/></div>
+                        <div className='chat-room-preview-profile-img'><img  src={friend.profileImage} alt='searched friend' className='img-rsc'/></div>
                         <div className='chat-room-preview-contents-friend'>
                             <div className='preview-contents-name'>{friend.name}</div>
                             
@@ -135,10 +137,12 @@ const PreviewCard = ({
                 <div className='chat-room-preview-card' onClick={() => handleChatClick(lastMessageRoomId)}>
                     <div className='chat-room-preview-layout1'>
                         <div className='chat-room-preview-profile-img'>
-                            <img src={`http://localhost:5001${lastMessage.sender.profileImage}`} alt='profile' className='img-rsc' />
+                            <img src={lastMessage.sender.profileImage} alt='profile' className='img-rsc' />
                         </div>
                         <div className='chat-room-preview-contents'>
-                            <div className='preview-contents-name'>{lastMessage.sender.name}</div>
+                            <div className='preview-contents-name'>
+                                {lastMessage.sender.name} {searchedChatMembers.length - 2 > 0 ? `+ ${searchedChatMembers.length - 2} more` : null }
+                            </div>
                             <div>{truncateText(lastMessage.chat)}</div>
                             
                         </div>

@@ -1,7 +1,7 @@
 import './Setting.css';
 import { useMutation } from '@tanstack/react-query'; //, 
 import { edit } from '../../api/userService'; //
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useFetchLoginUser } from '../../hooks/util';
 import { queryClient } from '../../hooks/util';
 
@@ -11,6 +11,16 @@ const Setting = () => {
     const fileInputRef = useRef();
     const accessToken = localStorage.getItem('accessToken');
     const { data: user } = useFetchLoginUser({accessToken});
+
+    useEffect(() => {
+        if(user){
+            console.log("user : ", user);
+        }
+        if(accessToken){
+            console.log("accessToken : ", accessToken);
+        }
+    }, [user,accessToken])
+
     const mutation = useMutation({
         mutationFn: edit,
         onSuccess: () => {
@@ -80,7 +90,7 @@ const Setting = () => {
                 {user?.profileImage && (
                     <div className='profile-image-container' onClick={handleProfileClick}>
                         <img
-                            src={previewImage ? previewImage : `http://localhost:5001${user?.profileImage}`}
+                            src={previewImage ? previewImage : user?.profileImage}
                             alt="profile"
                             className='profile-img-rsc'
                         />
