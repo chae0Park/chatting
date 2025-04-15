@@ -7,7 +7,8 @@ const httpServer = createServer(app);
 const io = new Server(httpServer, {
     cors:{
         origin: 'https://chatting-sage-psi.vercel.app',
-        methods: ['GET', 'POST', 'PUT', 'DELETE']           
+        methods: ['GET', 'POST', 'PUT', 'DELETE'],
+        credentials: true           
     },
 });
 
